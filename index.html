@@ -365,8 +365,11 @@
       .loc-picker p.pick-help{ margin:0 0 10px; font-size:.88rem; color:var(--ink-soft); }
       .map-search-row{ display:flex; gap:8px; margin-bottom:10px; }
       .map-search-row .loc-btn{ flex:1; }
-      .leaflet-map{ width:100%; height:340px; border-radius:10px; border:1.5px solid var(--line); overflow:hidden; background:#E8EFEA; z-index:1; }
-      @media (max-width:640px){ .leaflet-map{ height:300px; } }
+      .leaflet-map{ width:100%; height:560px; border-radius:10px; border:1.5px solid var(--line); overflow:hidden; background:#E8EFEA; z-index:1; }
+      @media (max-width:640px){
+        .leaflet-map{ height:78vh; min-height:480px; }
+        .loc-picker{ padding:10px; }
+      }
       .leaflet-container{ font-family:"Archivo",sans-serif; }
       .map-pin-wrap{ background:transparent; border:none; }
       .map-pin{
@@ -525,7 +528,7 @@
         <section class="panel active" id="panel-cliente" role="tabpanel" aria-labelledby="tab-cliente">
           <div class="panel-head">
             <h2>Pide tu mandado</h2>
-            <p>Completa el formulario y tu pedido aparece al instante en el tablero de repartidores de este prototipo. El administrador lo ve en su panel y puede asignarlo si nadie lo toma. Para que no haya confusiones, cada punto se fija <b>en el mapa, sin salir de esta página</b>: escribe la dirección, toca «Ubicar en el mapa» — el mapa te lleva a la zona aproximada — y termina de seleccionar el punto exacto tocando el mapa o arrastrando el pin hasta la puerta. El enlace exacto para el repartidor se genera solo.</p>
+            <p>Completa el formulario y tu pedido aparece al instante en el tablero de repartidores. Cada punto se fija <b>en el mapa grande, sin salir de esta página</b>: escribe la dirección, toca «Ubicar en el mapa» y mueve el pin hasta la puerta. Nada más: <b>no hay que escoger zona</b> — Campeche es chico y el repartidor llega con el punto exacto, que además puede abrir en Google Maps.</p>
           </div>
           <div class="grid-2">
             <form class="card" id="order-form" novalidate>
@@ -559,24 +562,16 @@
                 <div class="loc-status" id="pickup-status" role="status"></div>
                 <div class="loc-selected" id="pickup-selected">✓ <b>Punto fijado:</b> <span id="pickup-selected-label"></span> · <a id="pickup-selected-link" href="#" target="_blank" rel="noopener">Ver en Google Maps</a> <button type="button" id="pickup-clear">Quitar</button></div>
                 <div class="loc-picker" id="pickup-picker" hidden>
-                  <p class="pick-help"><b>Así funciona:</b> 1) Escribe la dirección arriba (calle, número y colonia). 2) Toca «Buscar en el mapa» y el mapa te lleva a la zona aproximada. 3) Termina de fijar el punto exacto: <b>toca el mapa justo donde es o arrastra el pin naranja</b> hasta la puerta. Ese punto exacto es el que recibe el repartidor.</p>
+                  <p class="pick-help">Escribe la dirección arriba, toca «Buscar» y <b>mueve el pin naranja hasta la puerta</b> (toca el mapa o arrástralo). Ese punto exacto es el que recibe el repartidor.</p>
                   <div class="map-search-row">
                     <button type="button" class="loc-btn" id="pickup-search-btn">🔍 Buscar la dirección escrita en el mapa</button>
                   </div>
-                  <div class="leaflet-map" id="pickup-map" role="application" aria-label="Mapa interactivo para fijar el punto de recogida: toca el mapa o arrastra el pin para ajustar el punto exacto"></div>
+                  <div class="leaflet-map" id="pickup-map" role="application" aria-label="Mapa interactivo grande para fijar el punto de recogida: toca el mapa o arrastra el pin para ajustar el punto exacto"></div>
                   <div class="map-adjust-bar" id="pickup-adjust-bar">📍 Todavía no hay punto: busca tu dirección o toca el mapa para colocar el pin donde se recoge.</div>
                   <div class="search-results" id="pickup-results"></div>
-                  <div class="loc-credit">Mapa © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a> · Búsqueda de direcciones: OpenStreetMap (Nominatim)</div>
-                  <p class="freq-label">O elige un lugar frecuente</p>
-                  <div class="place-list" id="pickup-places"></div>
+                  <div class="loc-credit">Mapa © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a> · El punto fijado se abre en Google Maps para el repartidor.</div>
                 </div>
-                <details class="loc-advanced">
-                  <summary>¿Ya tienes el enlace de Google Maps? Pégalo aquí (opcional)</summary>
-                  <a class="maps-open" id="pickup-maps-open" href="https://www.google.com/maps/search/?api=1&query=Campeche" target="_blank" rel="noopener">📍 Abrir Google Maps para ubicar el punto exacto</a>
-                  <label for="f-pickup-maps" style="margin-top:10px">Enlace de Google Maps del punto de recogida</label>
-                  <input id="f-pickup-maps" name="recogidaMaps" type="url" placeholder="Pega aquí el enlace de Maps: Compartir → Copiar enlace" />
-                  <div class="hint">Si seleccionaste el lugar en el mapa, este enlace se llena solo y no necesitas pegar nada.</div>
-                </details>
+                <input id="f-pickup-maps" name="recogidaMaps" type="hidden" />
               </div>
               <div class="field">
                 <label for="f-dropoff">¿Dónde se entrega? — aquí entrega el repartidor</label>
@@ -588,34 +583,16 @@
                 <div class="loc-status" id="dropoff-status" role="status"></div>
                 <div class="loc-selected" id="dropoff-selected">✓ <b>Punto fijado:</b> <span id="dropoff-selected-label"></span> · <a id="dropoff-selected-link" href="#" target="_blank" rel="noopener">Ver en Google Maps</a> <button type="button" id="dropoff-clear">Quitar</button></div>
                 <div class="loc-picker" id="dropoff-picker" hidden>
-                  <p class="pick-help"><b>Así funciona:</b> 1) Escribe la dirección de entrega arriba (calle, número y colonia). 2) Toca «Buscar en el mapa» y el mapa te lleva a la zona aproximada. 3) Termina de fijar el punto exacto: <b>toca el mapa justo donde es o arrastra el pin naranja</b> hasta la puerta. Ese punto exacto es el que recibe el repartidor.</p>
+                  <p class="pick-help">Escribe la dirección arriba, toca «Buscar» y <b>mueve el pin naranja hasta la puerta</b> (toca el mapa o arrástralo). Ese punto exacto es el que recibe el repartidor.</p>
                   <div class="map-search-row">
                     <button type="button" class="loc-btn" id="dropoff-search-btn">🔍 Buscar la dirección escrita en el mapa</button>
                   </div>
-                  <div class="leaflet-map" id="dropoff-map" role="application" aria-label="Mapa interactivo para fijar el punto de entrega: toca el mapa o arrastra el pin para ajustar el punto exacto"></div>
+                  <div class="leaflet-map" id="dropoff-map" role="application" aria-label="Mapa interactivo grande para fijar el punto de entrega: toca el mapa o arrastra el pin para ajustar el punto exacto"></div>
                   <div class="map-adjust-bar" id="dropoff-adjust-bar">📍 Todavía no hay punto: busca la dirección o toca el mapa para colocar el pin donde se entrega.</div>
                   <div class="search-results" id="dropoff-results"></div>
-                  <div class="loc-credit">Mapa © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a> · Búsqueda de direcciones: OpenStreetMap (Nominatim)</div>
-                  <p class="freq-label">O elige un lugar frecuente</p>
-                  <div class="place-list" id="dropoff-places"></div>
+                  <div class="loc-credit">Mapa © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap contributors</a> · El punto fijado se abre en Google Maps para el repartidor.</div>
                 </div>
-                <details class="loc-advanced">
-                  <summary>¿Ya tienes el enlace de Google Maps? Pégalo aquí (opcional)</summary>
-                  <a class="maps-open" id="dropoff-maps-open" href="https://www.google.com/maps/search/?api=1&query=Campeche" target="_blank" rel="noopener">📍 Abrir Google Maps para ubicar el punto exacto</a>
-                  <label for="f-dropoff-maps" style="margin-top:10px">Enlace de Google Maps del punto de entrega</label>
-                  <input id="f-dropoff-maps" name="entregaMaps" type="url" placeholder="Pega aquí el enlace de Maps: Compartir → Copiar enlace" />
-                  <div class="hint">Si seleccionaste el lugar en el mapa, este enlace se llena solo y no necesitas pegar nada.</div>
-                </details>
-              </div>
-              <div class="field">
-                <label for="f-zone">Zona de entrega</label>
-                <select id="f-zone">
-                  <option value="centro">Centro Histórico y barrios (San Román, Guadalupe, Santa Ana)</option>
-                  <option value="norte">Zona norte (Kalá, Siglo XXI, Samulá)</option>
-                  <option value="fidel">Fidel Velázquez, Solidaridad y colonias del sur</option>
-                  <option value="lerma">Lerma y Playa Bonita</option>
-                  <option value="china">Chiná y periferia</option>
-                </select>
+                <input id="f-dropoff-maps" name="entregaMaps" type="hidden" />
               </div>
               <div class="field">
                 <label for="f-km">Distancia estimada: <b id="km-label">3 km</b></label>
@@ -819,7 +796,7 @@
           <div class="how">
             <div class="num">1</div>
             <h3>«Aquí recoge» y «aquí entrega»</h3>
-            <p>Ya funciona sin salir de la página y sin clave de Google: en el formulario, cada punto trae el botón «Ubicar en el mapa», que abre un mapa interactivo de Campeche (OpenStreetMap). El cliente escribe la dirección, toca «Buscar la dirección escrita en el mapa» y el mapa lo lleva a la ubicación aproximada; de ahí él mismo termina de seleccionar el punto exacto tocando el mapa o arrastrando el pin hasta la puerta — así cualquier domicilio se puede fijar, no solo los lugares frecuentes, que quedan como atajo junto con «Usar mi ubicación» (GPS). El enlace exacto de Google Maps se genera solo con ese punto y el repartidor lo recibe en su encargo con el botón «Ver en Google Maps». Pegar el enlace a mano sigue disponible como opción, ya no es el único camino.</p>
+            <p>Ya funciona sin salir de la página y sin clave de Google: en el formulario, cada punto trae el botón «Ubicar en el mapa», que abre un mapa interactivo grande de Campeche (OpenStreetMap) — en el celular ocupa casi toda la pantalla, para tocar y mover el pin sin batallar. El cliente escribe la dirección, toca «Buscar la dirección escrita en el mapa» y el mapa lo lleva a la ubicación aproximada; de ahí él mismo termina de seleccionar el punto exacto tocando el mapa o arrastrando el pin hasta la puerta. El flujo quedó corto a propósito: buscar, ajustar el pin y listo — sin listas de lugares, sin pegar enlaces y sin escoger zona, porque Campeche es chico y manda el punto exacto. Ese punto se convierte solo en enlace de Google Maps y el repartidor lo abre con el botón «Ver en Google Maps». El mapa incrustado de Google como tal pediría su clave de pago; por eso la selección se hace aquí y Google Maps se usa para navegar hasta el punto.</p>
           </div>
           <div class="how">
             <div class="num">2</div>
@@ -1132,6 +1109,7 @@
         "use strict";
         var BASE = 35, PER_KM = 5, MIN_FARE = 50, MAX_FARE = 60, COMMISSION = 0; // 0% en lanzamiento
         var ZONE_NAMES = {
+          campeche: "San Francisco de Campeche",
           centro: "Centro y barrios",
           norte: "Zona norte",
           fidel: "Fidel Velázquez / sur",
@@ -1567,6 +1545,7 @@
             adjustBar.classList.toggle("exact", mode === "exact");
           }
           function markRows(){
+            if (!list) return;
             var pt = locPoints[prefix];
             Array.prototype.forEach.call(list.children, function(row, i){
               row.setAttribute("aria-pressed", pt && pt.lat === PLACES[i].lat && pt.lng === PLACES[i].lng ? "true" : "false");
@@ -1596,7 +1575,6 @@
             $(prefix + "-selected-label").textContent = pt.name + " (" + pt.lat.toFixed(5) + ", " + pt.lng.toFixed(5) + ")";
             $(prefix + "-selected-link").href = coordsUrl(pt.lat, pt.lng);
             selectedBox.classList.add("show");
-            if (prefix === "dropoff" && pt.zone){ $("f-zone").value = pt.zone; }
             markRows();
             autoDistance();
             moveMarker(pt.lat, pt.lng, opts.zoom || 0);
@@ -1605,8 +1583,11 @@
               status.textContent = "Se encontró la zona aproximada. Ajusta el pin en el mapa para fijar el punto exacto.";
               status.classList.add("show");
             } else if (opts.exact){
-              setAdjust("exact", "✓ Punto exacto fijado donde " + verb + ": " + pt.lat.toFixed(5) + ", " + pt.lng.toFixed(5) + ". Si te equivocaste, toca el mapa de nuevo o arrastra el pin.");
+              setAdjust("exact", "✓ Punto exacto fijado donde " + verb + ". Ya puedes cerrar el mapa y seguir con tu pedido.");
               status.classList.remove("show");
+              /* Al fijar el punto, las opciones de búsqueda se esconden:
+                 queda solo el mapa y la confirmación, sin listas que confundan. */
+              if (resultsBox) resultsBox.innerHTML = "";
               toast("Punto exacto fijado en el mapa.");
             }
           }
@@ -1649,7 +1630,7 @@
             if (mapObj || mapFailed) { if (mapObj) setTimeout(function(){ mapObj.invalidateSize(); }, 60); return; }
             if (!window.L){
               mapFailed = true;
-              setAdjust("approx", "El mapa interactivo no cargó (revisa tu conexión). Puedes fijar el punto con «Usar mi ubicación» o elegir un lugar frecuente de la lista.");
+              setAdjust("approx", "El mapa interactivo no cargó (revisa tu conexión). Puedes fijar el punto con «Usar mi ubicación».");
               return;
             }
             var start = locPoints[prefix] || CAMPECHE_CENTER;
@@ -1676,7 +1657,7 @@
             status.classList.add("show");
             resultsBox.innerHTML = "";
             var query = /campeche/i.test(q) ? q : q + ", San Francisco de Campeche, Campeche, México";
-            var url = "https://nominatim.openstreetmap.org/search?format=jsonv2&limit=5&addressdetails=1&accept-language=es&countrycodes=mx&viewbox=-90.62,19.89,-90.42,19.78&bounded=0&q=" + encodeURIComponent(query);
+            var url = "https://nominatim.openstreetmap.org/search?format=jsonv2&limit=3&addressdetails=1&accept-language=es&countrycodes=mx&viewbox=-90.62,19.89,-90.42,19.78&bounded=0&q=" + encodeURIComponent(query);
             fetch(url).then(function(r){ return r.json(); }).then(function(results){
               if (!results || !results.length){
                 status.textContent = "No se encontró esa dirección tal cual. Revisa la calle y la colonia, o toca directamente el mapa en la zona donde " + verb + " y coloca ahí el pin: ese punto exacto es el que vale.";
@@ -1686,7 +1667,7 @@
               }
               var label = document.createElement("p");
               label.className = "sr-label";
-              label.textContent = results.length === 1 ? "Se encontró 1 resultado — tócalo si no es el que se marcó:" : "Resultados parecidos — toca el correcto y luego ajusta el pin al punto exacto:";
+              label.textContent = results.length === 1 ? "Se marcó este resultado — ajusta el pin si hace falta:" : "¿Es alguno de estos? Toca el correcto y ajusta el pin:";
               resultsBox.appendChild(label);
               results.forEach(function(res, i){
                 var lat = parseFloat(res.lat), lng = parseFloat(res.lon);
@@ -1718,18 +1699,9 @@
           input.addEventListener("keydown", function(e){
             if (e.key === "Enter" && !picker.hidden){ e.preventDefault(); geocodeSearch(); }
           });
-          PLACES.forEach(function(p, i){
-            var b = document.createElement("button");
-            b.type = "button";
-            b.className = "place-row";
-            b.setAttribute("aria-pressed", "false");
-            b.innerHTML = '<span class="pin-num">' + (i + 1) + '</span><span><b>' + esc(p.name) + '</b><span class="detail">' + esc(p.detail) + '</span></span>';
-            b.addEventListener("click", function(){
-              ensureMap();
-              setPoint({ name: p.name, detail: p.detail, lat: p.lat, lng: p.lng, zone: p.zone }, { exact: true, zoom: 17 });
-            });
-            list.appendChild(b);
-          });
+          /* Ya no se muestra la lista de lugares frecuentes: eran demasiadas
+             opciones y confundían. El cliente busca su dirección o toca el
+             mapa, y nada más. */
           pickBtn.addEventListener("click", function(){
             var open = picker.hidden;
             picker.hidden = !open;
@@ -1835,7 +1807,6 @@
             (o.notes ? '<p style="margin:0 0 6px; font-size:.93rem; color:var(--ink-soft)">“' + esc(o.notes) + '”</p>' : '') +
             '<div class="order-meta">' +
               '<span>Cliente: <b>' + esc(o.customer) + '</b></span>' +
-              '<span>Zona: <b>' + esc(ZONE_NAMES[o.zone] || o.zone) + '</b></span>' +
               '<span><b>' + o.km + ' km</b></span>' +
               '<span>Tarifa total: <b>' + fareText + '</b></span>' +
               '<span>Pago: <b>' + esc(o.pay) + '</b></span>' +
@@ -2145,7 +2116,7 @@
             pickupLng: locPoints.pickup ? locPoints.pickup.lng : null,
             dropoffLat: locPoints.dropoff ? locPoints.dropoff.lat : null,
             dropoffLng: locPoints.dropoff ? locPoints.dropoff.lng : null,
-            zone: $("f-zone").value,
+            zone: "campeche",
             km: km,
             notes: $("f-notes").value.trim(),
             pay: $("f-pay").value,
