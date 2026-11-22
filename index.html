@@ -878,7 +878,7 @@
               <tbody id="admin-rows"></tbody>
             </table>
           </div>
-          <p style="color:var(--muted); font-size:.9rem; margin-top:12px">Si un encargo lleva rato sin que nadie lo tome, el administrador lo asigna directo a un repartidor de la zona. Si un cliente cancela, se marca aquí y el repartidor se libera al instante.</p>
+          <p style="color:var(--muted); font-size:.9rem; margin-top:12px">Si un encargo lleva rato sin que nadie lo tome, el administrador lo asigna directo a un repartidor de la zona. Un pedido solo se puede cancelar mientras no tenga repartidor asignado; al cancelarlo, desaparece de todas las listas. En cuanto tiene repartidor, ya no aparece la opción de cancelar.</p>
         </section>
       </div>
 
@@ -1402,6 +1402,8 @@
           if (!fbReady || !fbDb) return;
           fbDb.collection("orders").add(orderToFirestore(order)).then(function(ref){
             order.fsId = ref.id;
+            /* Si se canceló antes de que Firestore devolviera el id, se borra al instante. */
+            if (order._deleted) deleteOrderFromFirestore(order);
           }).catch(function(){ connOffline(); });
         }
         function syncOrderStatusToFirestore(order){
@@ -1410,6 +1412,22 @@
             estado: localStatusToFs(order.status),
             riderId: fsRiderId(order.riderId)
           }).catch(function(){ connOffline(); });
+        }
+        /* Un pedido cancelado desaparece: se borra de Firestore para que
+           no vuelva a aparecer en ninguna vista al recargar o sincronizar. */
+        function deleteOrderFromFirestore(order){
+          if (!order) return;
+          order._deleted = true;
+          if (!fbReady || !fbDb || !order.fsId) return;
+          fbDb.collection("orders").doc(order.fsId).delete().catch(function(){ connOffline(); });
+        }
+        function visibleOrders(){
+          return state.orders.filter(function(o){ return o.status !== "Cancelado"; });
+        }
+        /* Solo se puede cancelar mientras ningún repartidor lo haya tomado:
+           sin repartidor asignado. Con repartidor, ya no hay opción de cancelar. */
+        function canCancelOrder(o){
+          return !!o && !o.riderId && o.status !== "Entregado" && o.status !== "Cancelado";
         }
         function saveRiderToFirestore(rider){
           if (!fbReady || !fbDb) return;
@@ -1475,6 +1493,11 @@
               seen[doc.id] = true;
               var mapped = firestoreDocToOrder(doc.id, data);
               mapped.riderId = localRiderId(mapped.riderId);
+              /* Los cancelados no se muestran: si ya estaba en la lista, sale de ella. */
+              if (mapped.status === "Cancelado"){
+                state.orders = state.orders.filter(function(o){ return !(o.fsId === doc.id || (data.folio && o.id === data.folio)); });
+                return;
+              }
               var existing = null;
               for (var i = 0; i < state.orders.length; i++){
                 if (state.orders[i].fsId === doc.id || (data.folio && state.orders[i].id === data.folio)){ existing = state.orders[i]; break; }
@@ -1489,7 +1512,7 @@
                 if (m){ var n = parseInt(m[1], 10) + 1; if (n >= state.nextOrder) state.nextOrder = n; }
               }
             });
-            state.orders = state.orders.filter(function(o){ return !o.fsId || seen[o.fsId]; });
+            state.orders = state.orders.filter(function(o){ return o.status !== "Cancelado" && (!o.fsId || seen[o.fsId]); });
             connOnline();
             render();
           }, function(){ connOffline(); });
@@ -2427,15 +2450,18 @@
 
         function render(){
           renderLive();
-          /* Mis pedidos (cliente): todos los de la sesión */
+          /* Mis pedidos (cliente): los cancelados ya no aparecen en la lista */
+          var visible = visibleOrders();
           var mine = $("my-orders");
-          if (!state.orders.length){
+          if (!visible.length){
             mine.innerHTML = '<div class="empty">Todavía no tienes pedidos.<br>Cuando confirmes uno, aquí verás su avance paso a paso.</div>';
           } else {
-            mine.innerHTML = state.orders.slice().reverse().map(function(o){
+            mine.innerHTML = visible.slice().reverse().map(function(o){
               var act = "";
-              if (o.status !== "Entregado" && o.status !== "Cancelado"){
+              if (canCancelOrder(o)){
                 act = '<div class="order-actions"><button class="btn btn-outline btn-sm" data-cancel="' + o.id + '">Cancelar pedido</button></div>';
+              } else if (o.riderId && o.status !== "Entregado"){
+                act = '<p style="margin:10px 0 0; font-size:.86rem; color:var(--muted); font-weight:600">Ya tiene repartidor asignado: ya no se puede cancelar desde aquí.</p>';
               }
               return orderCard(o, act);
             }).join("");
@@ -2492,11 +2518,11 @@
             return '<div class="rider-row"><div class="who"><b>' + esc(r.name) + (r.id === state.myRiderId ? ' (tú)' : '') + '</b><span>' + esc(r.zone) + ' · ' + count + ' entregas' + gpsTxt + (r.id === state.myRiderId ? ' · Monedero: ' + money(state.walletBalance) : '') + '</span></div>' +
               '<span class="badge ' + (active ? 'badge-prog' : 'badge-done') + '">' + (active ? 'En entrega' : 'Disponible') + '</span></div>';
           }).join("");
-          /* Admin */
-          var total = state.orders.length;
-          var active = state.orders.filter(function(o){ return o.status !== "Entregado" && o.status !== "Cancelado"; }).length;
-          var done = state.orders.filter(function(o){ return o.status === "Entregado"; }).length;
-          var moved = state.orders.filter(function(o){ return o.status === "Entregado"; }).reduce(function(s,o){ return s + o.fare; }, 0);
+          /* Admin: los cancelados tampoco aparecen aquí ni cuentan en los totales */
+          var total = visible.length;
+          var active = visible.filter(function(o){ return o.status !== "Entregado"; }).length;
+          var done = visible.filter(function(o){ return o.status === "Entregado"; }).length;
+          var moved = visible.filter(function(o){ return o.status === "Entregado"; }).reduce(function(s,o){ return s + o.fare; }, 0);
           $("kpi-total").textContent = total;
           $("kpi-active").textContent = active;
           $("kpi-done").textContent = done;
@@ -2505,11 +2531,11 @@
           if (!total){
             rows.innerHTML = '<tr><td colspan="7" style="color:var(--muted)">Sin pedidos todavía. Los pedidos de los clientes aparecerán aquí en cuanto entren.</td></tr>';
           } else {
-            rows.innerHTML = state.orders.slice().reverse().map(function(o){
+            rows.innerHTML = visible.slice().reverse().map(function(o){
               var opts = '<option value="">— Sin asignar —</option>' + state.riders.map(function(r){
                 return '<option value="' + r.id + '"' + (o.riderId === r.id ? ' selected' : '') + '>' + esc(r.name) + '</option>';
               }).join("");
-              var cancelBtn = (o.status !== "Entregado" && o.status !== "Cancelado")
+              var cancelBtn = canCancelOrder(o)
                 ? '<button class="btn btn-outline btn-sm" data-cancel="' + o.id + '">Cancelar</button>' : '';
               return '<tr><td><b>' + o.id + '</b><br><span style="color:var(--muted); font-size:.82rem">' + esc(o.type) + '</span></td>' +
                 '<td>' + esc(o.customer) + '<br><span style="color:var(--muted); font-size:.82rem">' + esc(o.phone || "") + '</span></td>' +
@@ -2547,7 +2573,19 @@
           }
           if (can){
             var o4 = state.orders.find(function(x){ return x.id === can.getAttribute("data-cancel"); });
-            if (o4){ o4.status = "Cancelado"; syncOrderStatusToFirestore(o4); toast("Pedido " + o4.id + " cancelado."); render(); }
+            if (o4){
+              /* Con repartidor asignado ya no se puede cancelar, ni por error ni a propósito. */
+              if (!canCancelOrder(o4)){
+                toast("El pedido " + o4.id + " ya tiene repartidor asignado y ya no se puede cancelar.");
+                render();
+                return;
+              }
+              var cancelledId = o4.id;
+              deleteOrderFromFirestore(o4);
+              state.orders = state.orders.filter(function(x){ return x.id !== cancelledId; });
+              toast("Pedido " + cancelledId + " cancelado. Ya no aparece en la lista.");
+              render();
+            }
           }
         });
         document.addEventListener("change", function(e){
