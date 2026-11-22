@@ -268,6 +268,18 @@
       }
       .rider-row .who b{ display:block; }
       .rider-row .who span{ font-size:.84rem; color:var(--muted); }
+      /* sesión del repartidor: código + memoria en el teléfono */
+      .session-card{ border:1.5px solid var(--ok); background:var(--ok-soft); }
+      .session-card h3{ color:var(--ok); }
+      .session-card p{ margin:0 0 10px; color:var(--ink-soft); font-size:.94rem; }
+      .pin-input{ letter-spacing:.45em; font-size:1.25rem !important; font-weight:700; text-align:center; }
+      .auth-divider{ display:flex; align-items:center; gap:10px; margin:18px 0 4px; color:var(--muted); font-size:.82rem; font-weight:700; letter-spacing:.04em; text-transform:uppercase; }
+      .auth-divider::before,.auth-divider::after{ content:""; flex:1; border-top:1.5px dashed var(--line); }
+      .admin-rider-row{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; border:1px solid var(--line); border-radius:10px; padding:12px 14px; background:var(--surface); }
+      .admin-rider-row .who{ flex:1 1 180px; }
+      .admin-rider-row .who b{ display:block; }
+      .admin-rider-row .who span{ font-size:.84rem; color:var(--muted); }
+      .admin-rider-row input{ width:110px; padding:8px 10px; border:1.5px solid var(--line); border-radius:8px; background:var(--surface); }
 
       /* ---------- SECTIONS ---------- */
       section.block{ padding:44px 0 6px; }
@@ -768,15 +780,45 @@
           <div class="promo-banner">🎉 <b>Promoción de lanzamiento:</b> durante las primeras 2 semanas la comisión es <b>$0</b> y no depositas nada — te quedas con el 100% de cada tarifa. Cuando empiece el cobro, la comisión será solo del 10% y funcionará con monedero: depositas $100 para activarte y de ahí se descuenta la comisión de cada viaje (abajo está tu monedero para probarlo).</div>
           <div class="grid-2">
             <div>
+              <div class="card session-card" id="rider-session-card" hidden>
+                <h3>✅ Ya entraste como repartidor</h3>
+                <p id="rider-session-text">Sesión iniciada.</p>
+                <p style="font-size:.86rem; color:var(--muted)">Este teléfono te recuerda: al recargar o volver a abrir el enlace entras directo, sin teclear nada. Si cambias de teléfono o limpias el navegador, entra abajo con tu nombre y tu código de 4 números. Si comparten este teléfono, sal antes de prestarlo.</p>
+                <button type="button" class="btn btn-outline full" id="btn-rider-logout">Salir (cerrar mi sesión en este teléfono)</button>
+              </div>
+              <div id="rider-auth-wrap">
+              <form class="card" id="rider-login-form" novalidate>
+                <h3>Ya estoy registrado — entrar</h3>
+                <p style="margin:0 0 12px; color:var(--ink-soft); font-size:.93rem">Sin usuario ni contraseña larga: <b>toca tu nombre y pon tu código de 4 números</b>. Así te reconoce el sistema en cualquier teléfono, sin duplicarte. Si te registraste antes de que existiera el código, pon el código que quieras crear: queda guardado como tuyo en este primer ingreso.</p>
+                <div class="field">
+                  <label for="login-rider">Tu nombre en la lista</label>
+                  <select id="login-rider"><option value="">— Elige tu nombre —</option></select>
+                  <div class="hint" id="login-rider-hint">La lista se llena con los repartidores ya registrados. Si todavía no estás, regístrate abajo.</div>
+                </div>
+                <div class="field">
+                  <label for="login-pin">Tu código de 4 números</label>
+                  <input id="login-pin" class="pin-input" type="password" inputmode="numeric" autocomplete="off" maxlength="4" placeholder="••••" aria-describedby="login-pin-hint" />
+                  <div class="hint" id="login-pin-hint">¿Lo olvidaste? El administrador te lo puede cambiar desde su panel, sin borrar tu cuenta.</div>
+                </div>
+                <button type="submit" class="btn btn-teal full" id="btn-rider-login">Entrar con mi código</button>
+                <div class="msg" id="login-msg" role="status"></div>
+              </form>
+              <div class="auth-divider">o si eres nuevo</div>
               <form class="card" id="rider-form" novalidate>
-                <h3>Regístrate para repartir</h3>
+                <h3>Regístrate para repartir (una sola vez)</h3>
+                <p style="margin:0 0 12px; color:var(--ink-soft); font-size:.93rem">Tu <b>WhatsApp es tu identidad</b>: si vuelves a escribir el mismo número, el sistema te reconoce y <b>no te duplica</b>. Elige un código de 4 números fácil de recordar para ti: con él recuperas tu cuenta en cualquier teléfono.</p>
                 <div class="field">
                   <label for="r-name">Nombre completo</label>
                   <input id="r-name" type="text" placeholder="Ej. Carlos Canul" />
                 </div>
                 <div class="field">
-                  <label for="r-phone">WhatsApp</label>
-                  <input id="r-phone" type="tel" placeholder="981 000 0000" />
+                  <label for="r-phone">WhatsApp (10 números)</label>
+                  <input id="r-phone" type="tel" inputmode="tel" placeholder="981 000 0000" />
+                </div>
+                <div class="field">
+                  <label for="r-pin">Crea tu código personal de 4 números</label>
+                  <input id="r-pin" class="pin-input" type="password" inputmode="numeric" autocomplete="new-password" maxlength="4" placeholder="••••" />
+                  <div class="hint">Como un NIP: 4 números que solo tú sepas. Lo vas a usar si cambias de teléfono o limpias el navegador.</div>
                 </div>
                 <div class="field">
                   <label for="r-moto">Tu moto (marca y modelo)</label>
@@ -795,9 +837,10 @@
                 <div class="field">
                   <label><input type="checkbox" id="r-own" style="min-height:auto" /> Tengo moto propia y licencia vigente</label>
                 </div>
-                <button type="submit" class="btn btn-teal full">Registrarme como repartidor</button>
+                <button type="submit" class="btn btn-teal full" id="btn-rider-register">Registrarme como repartidor</button>
                 <div class="msg" id="rider-msg" role="status"></div>
               </form>
+              </div>
               <div class="card gps-card" style="margin-top:22px">
                 <h3>📍 Tu ubicación en vivo (GPS)</h3>
                 <p style="margin:0; color:var(--ink-soft); font-size:.95rem">Sí, como pensaste: para que el administrador vea <b>cuántos repartidores están activos, dónde están y cómo avanzan</b>, cada repartidor tiene que dar permiso al GPS de su teléfono. Sin ese permiso no hay mapa en vivo que valga.</p>
@@ -879,6 +922,17 @@
             </table>
           </div>
           <p style="color:var(--muted); font-size:.9rem; margin-top:12px">Si un encargo lleva rato sin que nadie lo tome, el administrador lo asigna directo a un repartidor de la zona. Un pedido solo se puede cancelar mientras no tenga repartidor asignado; al cancelarlo, desaparece de todas las listas. En cuanto tiene repartidor, ya no aparece la opción de cancelar.</p>
+          <div class="card" style="margin-top:22px">
+            <h3>🔑 Repartidores y sus códigos de acceso</h3>
+            <p style="margin:0 0 12px; color:var(--ink-soft); font-size:.94rem">Cada repartidor entra con su nombre y su <b>código personal de 4 números</b>, y su teléfono lo recuerda para no pedirlo a cada rato. Si a alguien se le olvida su código, escribe aquí uno nuevo y toca «Cambiar código»: con ese entra la próxima vez, sin crearle otra cuenta y sin perder sus entregas ni su monedero.</p>
+            <div class="field" style="max-width:420px">
+              <label for="admin-clave">Clave del administrador (para poder cambiar códigos)</label>
+              <input id="admin-clave" type="password" autocomplete="off" placeholder="Tu clave de administrador" />
+              <div class="hint">La primera vez que la uses queda guardada su huella en la base (nunca la clave en texto). Sin esa clave, nadie puede cambiar el código de un repartidor desde este panel.</div>
+            </div>
+            <div class="rider-list" id="admin-rider-list"></div>
+            <div class="msg" id="admin-rider-msg" role="status"></div>
+          </div>
         </section>
       </div>
 
@@ -1429,12 +1483,151 @@
         function canCancelOrder(o){
           return !!o && !o.riderId && o.status !== "Entregado" && o.status !== "Cancelado";
         }
+        /* ---------- Sesión del repartidor (combinada) ----------
+           Sin usuario ni contraseña: la identidad es el WhatsApp +
+           un código personal de 4 números guardado en su ficha de
+           Firestore. Además, este teléfono guarda la sesión (solo el
+           identificador y los datos de su ficha, en el almacenamiento
+           del navegador de ESTE teléfono) para reconocerlo al volver
+           sin teclear nada. Si limpia el navegador o cambia de
+           teléfono, entra con su nombre + código y recupera la MISMA
+           cuenta: nunca se crea un duplicado con el mismo WhatsApp. */
+        var RIDER_SESSION_KEY = "eec_rider_session_v1";
+        /* El código NUNCA se guarda ni se muestra en texto plano: solo
+           viaja su huella (hash con sal, iterado). Ni Firestore, ni la
+           sesión guardada en el teléfono, ni ninguna lista de la página
+           contienen el código de nadie. */
+        function randomSalt(){
+          var a = new Uint8Array(8);
+          if (window.crypto && crypto.getRandomValues){ crypto.getRandomValues(a); }
+          else { for (var i = 0; i < a.length; i++) a[i] = Math.floor(Math.random() * 256); }
+          var s = "";
+          for (var j = 0; j < a.length; j++){ s += ("0" + a[j].toString(16)).slice(-2); }
+          return s;
+        }
+        function sha256Hex(str){
+          if (window.crypto && crypto.subtle && crypto.subtle.digest){
+            return crypto.subtle.digest("SHA-256", new TextEncoder().encode(str)).then(function(buf){
+              var b = new Uint8Array(buf), s = "";
+              for (var i = 0; i < b.length; i++){ s += ("0" + b[i].toString(16)).slice(-2); }
+              return s;
+            });
+          }
+          /* Respaldo sin criptografía fuerte (contextos no seguros):
+             hash iterado simple, mejor que texto plano. */
+          var h = 5381;
+          for (var k = 0; k < str.length; k++){ h = ((h << 5) + h + str.charCodeAt(k)) >>> 0; }
+          return Promise.resolve("fb" + h.toString(16) + str.length);
+        }
+        function hashPin(pin, salt){
+          var chain = sha256Hex(salt + ":" + pin);
+          for (var i = 0; i < 2000; i++){
+            chain = chain.then(function(v){ return sha256Hex(v + ":" + salt); });
+          }
+          return chain;
+        }
+        function makePinVerifier(pin){
+          var salt = randomSalt();
+          return hashPin(pin, salt).then(function(hash){ return { salt: salt, hash: hash }; });
+        }
+        function riderHasCode(rider){ return !!(rider && (rider.codigoHash || rider.codigo)); }
+        function verifyRiderPin(rider, pin){
+          if (rider.codigoHash && rider.codigoSalt){
+            return hashPin(pin, rider.codigoSalt).then(function(h){ return h === rider.codigoHash; });
+          }
+          /* Cuenta vieja con el código aún en texto plano en su ficha:
+             se compara una sola vez y al entrar se migra a huella. */
+          if (rider.codigo) return Promise.resolve(String(rider.codigo) === String(pin));
+          return Promise.resolve(false);
+        }
+        function maskPhone(p){
+          var d = normalizePhone(p);
+          return d ? "WhatsApp ••• " + d.slice(-4) : "Sin WhatsApp";
+        }
+        function normalizePhone(p){
+          var d = String(p == null ? "" : p).replace(/\D/g, "");
+          if (d.length === 13 && d.indexOf("521") === 0) d = d.slice(3);
+          else if (d.length === 12 && d.indexOf("52") === 0) d = d.slice(2);
+          return d;
+        }
+        function validPin(pin){ return /^\d{4}$/.test(String(pin || "")); }
+        function findRiderByPhone(phone){
+          var np = normalizePhone(phone);
+          if (!np) return null;
+          for (var i = 0; i < state.riders.length; i++){
+            if (!state.riders[i].demo && normalizePhone(state.riders[i].phone) === np) return state.riders[i];
+          }
+          return null;
+        }
+        function findRiderByFsId(fsId){
+          if (!fsId) return null;
+          for (var i = 0; i < state.riders.length; i++){ if (state.riders[i].fsId === fsId) return state.riders[i]; }
+          return null;
+        }
+        function persistRiderSession(rider){
+          if (!rider) return;
+          try {
+            window.localStorage.setItem(RIDER_SESSION_KEY, JSON.stringify({
+              id: rider.id, fsId: rider.fsId || null, name: rider.name || "",
+              phone: rider.phone || "", moto: rider.moto || "", zone: rider.zone || ""
+            }));
+          } catch(err){ /* almacenamiento no disponible en este navegador: la sesión dura esta visita y el código sigue siendo la llave */ }
+        }
+        function loadStoredSession(){
+          try {
+            var raw = window.localStorage.getItem(RIDER_SESSION_KEY);
+            return raw ? JSON.parse(raw) : null;
+          } catch(err){ return null; }
+        }
+        function clearRiderSession(){
+          try { window.localStorage.removeItem(RIDER_SESSION_KEY); } catch(err){}
+        }
+        function setMyRider(rider, persist){
+          if (!rider) return;
+          state.myRiderId = rider.id;
+          state.myRiderFsId = rider.fsId || null;
+          if (typeof rider.saldoMonedero === "number") state.walletBalance = rider.saldoMonedero;
+          if (persist !== false) persistRiderSession(rider);
+        }
+        /* Al abrir o recargar: si este teléfono guardó una sesión, se
+           restaura. Primero se busca la ficha real (por id de Firestore
+           o por WhatsApp); si la nube todavía no la trae, se recrea la
+           ficha local desde lo guardado para que el repartidor SÍ
+           aparezca como él mismo y no tenga que registrarse otra vez. */
+        function tryRestoreRiderSession(){
+          if (state.myRiderId) return true;
+          var stored = loadStoredSession();
+          if (!stored || (!stored.fsId && !stored.phone && !stored.name)) return false;
+          var found = findRiderByFsId(stored.fsId) || findRiderByPhone(stored.phone) ||
+            state.riders.find(function(r){ return r.id === stored.id && !r.demo; }) || null;
+          if (found){
+            setMyRider(found);
+            return true;
+          }
+          if (stored.name){
+            var restored = {
+              id: stored.id || ("r" + (state.nextRider++)),
+              fsId: stored.fsId || null,
+              name: stored.name, phone: stored.phone || "", moto: stored.moto || "Moto propia",
+              zone: stored.zone || "", demo: false,
+              saldoMonedero: state.walletBalance || 0, activo: false, lat: null, lng: null
+            };
+            var m = /^r(\d+)$/.exec(restored.id);
+            if (m){ var n = parseInt(m[1], 10) + 1; if (n >= state.nextRider) state.nextRider = n; }
+            state.riders.push(restored);
+            setMyRider(restored);
+            return true;
+          }
+          return false;
+        }
         function saveRiderToFirestore(rider){
-          if (!fbReady || !fbDb) return;
-          fbDb.collection("riders").add({
+          if (!fbReady || !fbDb) return Promise.resolve(null);
+          return fbDb.collection("riders").add({
             nombre: rider.name,
             whatsapp: rider.phone || "",
             moto: rider.moto || "Moto propia",
+            codigoHash: rider.codigoHash || "",
+            codigoSalt: rider.codigoSalt || "",
             saldoMonedero: rider.id === state.myRiderId ? state.walletBalance : 0,
             estado: "disponible",
             activo: !!rider.activo,
@@ -1444,8 +1637,34 @@
             zona: rider.zone || ""
           }).then(function(ref){
             rider.fsId = ref.id;
-            if (rider.id === state.myRiderId) state.myRiderFsId = ref.id;
-          }).catch(function(){ connOffline(); });
+            if (rider.id === state.myRiderId){ state.myRiderFsId = ref.id; persistRiderSession(rider); }
+            return ref;
+          });
+        }
+        function updateRiderCodeInFirestore(rider){
+          if (!fbReady || !fbDb || !rider || !rider.fsId) return Promise.resolve(false);
+          var upd = { codigoHash: rider.codigoHash || "", codigoSalt: rider.codigoSalt || "" };
+          /* Si la ficha vieja traía el código en texto plano, se borra. */
+          try { if (window.firebase && firebase.firestore && firebase.firestore.FieldValue) upd.codigo = firebase.firestore.FieldValue.delete(); } catch(err){}
+          return fbDb.collection("riders").doc(rider.fsId).update(upd).then(function(){ rider.codigo = ""; return true; }).catch(function(){ connOffline(); return false; });
+        }
+        /* Clave del administrador: su huella vive en config/admin. La
+           primera vez que se usa una clave queda registrada (bootstrap);
+           después, cambiar un código exige que la clave coincida. */
+        function checkAdminClave(clave){
+          if (!clave || clave.length < 4) return Promise.resolve(false);
+          if (!fbReady || !fbDb) return Promise.resolve(true);
+          var ref = fbDb.collection("config").doc("admin");
+          return ref.get().then(function(doc){
+            if (doc.exists){
+              var d = doc.data() || {};
+              if (!d.claveHash || !d.claveSalt) return true;
+              return hashPin(clave, d.claveSalt).then(function(h){ return h === d.claveHash; });
+            }
+            return makePinVerifier(clave).then(function(v){
+              return ref.set({ claveHash: v.hash, claveSalt: v.salt }).then(function(){ return true; });
+            });
+          }).catch(function(){ return true; });
         }
         function syncMyLocationToFirestore(){
           if (!fbReady || !fbDb || !state.myRiderFsId) return;
@@ -1522,10 +1741,18 @@
               var data = doc.data() || {};
               var existing = null;
               for (var i = 0; i < state.riders.length; i++){
-                if (state.riders[i].fsId === doc.id || (!state.riders[i].demo && data.whatsapp && state.riders[i].phone === data.whatsapp && state.riders[i].name === data.nombre)){ existing = state.riders[i]; break; }
+                if (state.riders[i].fsId === doc.id || (!state.riders[i].demo && data.whatsapp && normalizePhone(state.riders[i].phone) === normalizePhone(data.whatsapp))){ existing = state.riders[i]; break; }
               }
               if (existing){
                 existing.fsId = doc.id;
+                if (data.nombre) existing.name = data.nombre;
+                if (data.whatsapp) existing.phone = data.whatsapp;
+                if (data.moto) existing.moto = data.moto;
+                if (data.zona) existing.zone = data.zona;
+                if (data.codigoHash) existing.codigoHash = String(data.codigoHash);
+                if (data.codigoSalt) existing.codigoSalt = String(data.codigoSalt);
+                /* Legado: solo en memoria, para migrarlo a huella al entrar; nunca se muestra ni se vuelve a guardar en claro. */
+                if (data.codigo && !data.codigoHash) existing.codigo = String(data.codigo);
                 if (typeof data.saldoMonedero === "number") existing.saldoMonedero = data.saldoMonedero;
                 if (existing.id !== state.myRiderId){
                   if (typeof data.activo === "boolean") existing.activo = data.activo;
@@ -1545,6 +1772,9 @@
                   name: data.nombre || "Repartidor",
                   phone: data.whatsapp || "",
                   moto: data.moto || "",
+                  codigoHash: data.codigoHash ? String(data.codigoHash) : "",
+                  codigoSalt: data.codigoSalt ? String(data.codigoSalt) : "",
+                  codigo: (data.codigo && !data.codigoHash) ? String(data.codigo) : "",
                   zone: data.zona || "",
                   saldoMonedero: (typeof data.saldoMonedero === "number" ? data.saldoMonedero : 0),
                   activo: !!data.activo,
@@ -1555,6 +1785,9 @@
               }
             });
             state.orders.forEach(function(o){ if (o.riderId) o.riderId = localRiderId(o.riderId); });
+            /* Si este teléfono tenía sesión guardada, ahora que ya llegó
+               la lista real de repartidores se enlaza con su ficha. */
+            tryRestoreRiderSession();
             render();
           }, function(){ /* si riders falla, la lista local sigue visible */ });
         }
@@ -2448,7 +2681,53 @@
           }
         }
 
+        function renderRiderAuth(){
+          var me = null;
+          for (var i = 0; i < state.riders.length; i++){ if (state.riders[i].id === state.myRiderId && !state.riders[i].demo){ me = state.riders[i]; break; } }
+          var card = $("rider-session-card"), wrap = $("rider-auth-wrap");
+          if (card && wrap){
+            if (me){
+              card.hidden = false; wrap.hidden = true;
+              var st = $("rider-session-text");
+              if (st) st.innerHTML = "Sesión como <b>" + esc(me.name) + "</b>" + (me.phone ? " · WhatsApp " + esc(me.phone) : "") + (me.zone ? " · " + esc(me.zone) : "") + ". Ya puedes aceptar encargos del tablero, activar tu GPS y ver tu monedero.";
+            } else {
+              card.hidden = true; wrap.hidden = false;
+            }
+          }
+          var sel = $("login-rider");
+          if (sel){
+            var real = state.riders.filter(function(r){ return !r.demo; });
+            var sig = real.map(function(r){ return r.id + ":" + r.name + ":" + (riderHasCode(r) ? "1" : "0"); }).join("|");
+            if (state._loginSig !== sig){
+              state._loginSig = sig;
+              var prev = sel.value;
+              sel.innerHTML = '<option value="">— Elige tu nombre —</option>' + real.map(function(r){
+                return '<option value="' + r.id + '">' + esc(r.name) + (riderHasCode(r) ? "" : " · (sin código: créalo al entrar)") + '</option>';
+              }).join("");
+              if (prev) sel.value = prev;
+              var hint = $("login-rider-hint");
+              if (hint) hint.textContent = real.length
+                ? "La lista se llena con los repartidores ya registrados. Si todavía no estás, regístrate abajo."
+                : "Todavía no hay repartidores en la lista. Si eres nuevo, regístrate abajo; si ya te registraste y no te ves, espera unos segundos a que sincronice y vuelve a abrir esta vista.";
+            }
+          }
+          var box = $("admin-rider-list");
+          if (box){
+            var real2 = state.riders.filter(function(r){ return !r.demo; });
+            var sig2 = real2.map(function(r){ return r.id + ":" + r.name + ":" + (r.phone || "") + ":" + (riderHasCode(r) ? "1" : "0"); }).join("|");
+            if (state._adminRiderSig !== sig2){
+              state._adminRiderSig = sig2;
+              box.innerHTML = real2.length ? real2.map(function(r){
+                return '<div class="admin-rider-row"><div class="who"><b>' + esc(r.name) + (r.id === state.myRiderId ? " (tú)" : "") + '</b><span>' + esc(maskPhone(r.phone)) + " · " + esc(r.zone || "") + " · " + (riderHasCode(r) ? "Con código ✓" : "Sin código todavía") + '</span></div>' +
+                  '<input type="password" inputmode="numeric" maxlength="4" placeholder="Nuevo código" data-admin-pin="' + r.id + '" aria-label="Nuevo código de 4 números para ' + esc(r.name) + '" />' +
+                  '<button type="button" class="btn btn-outline btn-sm" data-reset-code="' + r.id + '">Cambiar código</button></div>';
+              }).join("") : '<div class="empty">Todavía no hay repartidores reales registrados (solo los de ejemplo).</div>';
+            }
+          }
+        }
+
         function render(){
+          renderRiderAuth();
           renderLive();
           /* Mis pedidos (cliente): los cancelados ya no aparecen en la lista */
           var visible = visibleOrders();
@@ -2487,7 +2766,7 @@
           });
           var mineBox = $("my-deliveries");
           if (!state.myRiderId){
-            mineBox.innerHTML = '<div class="empty">Regístrate como repartidor para poder aceptar encargos.</div>';
+            mineBox.innerHTML = '<div class="empty">Entra con tu nombre y tu código (o regístrate una sola vez) para poder aceptar encargos.</div>';
           } else if (!my.length){
             mineBox.innerHTML = '<div class="empty">No tienes entregas en curso. Acepta un encargo del tablero.</div>';
           } else {
@@ -2555,7 +2834,7 @@
           var rel = e.target.closest("[data-release]");
           var can = e.target.closest("[data-cancel]");
           if (acc){
-            if (!state.myRiderId){ toast("Primero regístrate como repartidor para aceptar encargos."); showPanel("repartidor"); return; }
+            if (!state.myRiderId){ toast("Primero entra con tu nombre y tu código (o regístrate una sola vez) para aceptar encargos."); showPanel("repartidor"); return; }
             if (state.chargeMode && state.walletBalance <= 0){ toast("Tu monedero está en $0: deposita $100 para poder aceptar encargos."); return; }
             var o1 = state.orders.find(function(x){ return x.id === acc.getAttribute("data-accept"); });
             if (o1 && o1.status === "Nuevo"){ o1.status = "Aceptado"; o1.riderId = state.myRiderId; syncOrderStatusToFirestore(o1); toast("Encargo " + o1.id + " aceptado. ¡A recoger!"); render(); }
@@ -2690,21 +2969,174 @@
           $("my-orders").scrollIntoView({ behavior: "smooth", block: "center" });
         });
 
-        /* ---------- Registro de repartidor ---------- */
+        /* ---------- Registro de repartidor (una sola vez, sin duplicados) ---------- */
         $("rider-form").addEventListener("submit", function(e){
           e.preventDefault();
           var name = $("r-name").value.trim();
+          var phone = $("r-phone").value.trim();
+          var pin = $("r-pin").value.trim();
           var msg = $("rider-msg");
-          if (!name){ msg.className = "msg err"; msg.textContent = "Escribe tu nombre para registrarte."; return; }
-          if (!$("r-own").checked){ msg.className = "msg err"; msg.textContent = "Para repartir necesitas moto propia y licencia vigente. Marca la casilla cuando las tengas."; return; }
-          var rider = { id: "r" + (state.nextRider++), name: name, phone: $("r-phone").value.trim(), moto: $("r-moto").value.trim() || "Moto propia", zone: $("r-zone").value, demo: false, fsId: null, saldoMonedero: 0, activo: false, lat: null, lng: null };
-          state.riders.push(rider);
-          state.myRiderId = rider.id;
-          saveRiderToFirestore(rider);
-          msg.className = "msg ok";
-          msg.textContent = "¡Bienvenido, " + name.split(" ")[0] + "! Ya puedes aceptar encargos del tablero. En lanzamiento tu comisión es $0.";
-          toast("Registro completo. Ya puedes aceptar encargos.");
+          var btn = $("btn-rider-register");
+          function fail(text){ msg.className = "msg err"; msg.textContent = text; }
+          if (!name){ fail("Escribe tu nombre para registrarte."); return; }
+          if (normalizePhone(phone).length !== 10){ fail("Escribe tu WhatsApp con 10 números: es tu identidad y con él te reconocemos sin duplicarte."); $("r-phone").focus(); return; }
+          if (!validPin(pin)){ fail("Crea tu código personal de 4 números (solo dígitos). Con él recuperas tu cuenta en cualquier teléfono."); $("r-pin").focus(); return; }
+          if (!$("r-own").checked){ fail("Para repartir necesitas moto propia y licencia vigente. Marca la casilla cuando las tengas."); return; }
+          /* Anti-duplicados: el mismo WhatsApp ya registrado NO crea otra
+             ficha. Si el código coincide, es un ingreso; si no coincide,
+             se le dirige a entrar con su código o pedir el cambio al admin. */
+          var existing = findRiderByPhone(phone);
+          if (existing){
+            function finishExisting(){
+              if (existing.name !== name) existing.name = name;
+              setMyRider(existing);
+              msg.className = "msg ok";
+              msg.textContent = "Ya estabas registrado: entraste como " + existing.name + ", sin duplicarte. Este teléfono ya te recuerda.";
+              toast("Sesión iniciada como " + existing.name + ".");
+              render();
+            }
+            if (riderHasCode(existing)){
+              verifyRiderPin(existing, pin).then(function(ok){
+                if (!ok){ fail("Este WhatsApp ya está registrado a nombre de " + existing.name + " con otro código. Si eres tú, entra arriba con tu código; si lo olvidaste, pide al administrador que te lo cambie. No se creó otra cuenta."); return; }
+                if (existing.codigo){ /* migración de legado en claro a huella */
+                  makePinVerifier(pin).then(function(v){ existing.codigoHash = v.hash; existing.codigoSalt = v.salt; updateRiderCodeInFirestore(existing); finishExisting(); });
+                } else { finishExisting(); }
+              });
+              return;
+            }
+            makePinVerifier(pin).then(function(v){
+              existing.codigoHash = v.hash; existing.codigoSalt = v.salt;
+              updateRiderCodeInFirestore(existing);
+              finishExisting();
+            });
+            return;
+          }
+          var rider = { id: "r" + (state.nextRider++), name: name, phone: phone, moto: $("r-moto").value.trim() || "Moto propia", zone: $("r-zone").value, demo: false, fsId: null, saldoMonedero: 0, activo: false, lat: null, lng: null };
+          /* El código solo se conserva como huella con sal, nunca en
+             claro: primero se calcula la huella y recién entonces se
+             guarda la ficha, para que la base nunca reciba el código. */
+          makePinVerifier(pin).then(function(v){
+            rider.codigoHash = v.hash; rider.codigoSalt = v.salt;
+            state.riders.push(rider);
+            setMyRider(rider);
+            if (!fbReady || !fbDb){
+              msg.className = "msg ok";
+              msg.textContent = "¡Bienvenido, " + name.split(" ")[0] + "! Quedaste registrado en este teléfono, pero ahorita no hay conexión con la base de datos: tu registro se confirma en el sistema cuando vuelva la conexión. Tu código es tu llave si cambias de teléfono.";
+              toast("Registrado en este teléfono (sin conexión por ahora).");
+              render();
+              return;
+            }
+            btn.disabled = true;
+            var original = btn.textContent;
+            btn.textContent = "Guardando tu registro…";
+            msg.className = "msg";
+            msg.textContent = "";
+            saveRiderToFirestore(rider).then(function(){
+              btn.disabled = false; btn.textContent = original;
+              persistRiderSession(rider);
+              msg.className = "msg ok";
+              msg.textContent = "¡Bienvenido, " + name.split(" ")[0] + "! Registro confirmado en el sistema: ya apareces como repartidor y puedes aceptar encargos. Este teléfono te va a recordar; si cambias de teléfono, entra con tu nombre y tu código.";
+              toast("Registro confirmado. Ya puedes aceptar encargos.");
+              render();
+            }).catch(function(){
+              btn.disabled = false; btn.textContent = original;
+              state.riders = state.riders.filter(function(r){ return r.id !== rider.id; });
+              state.myRiderId = null; state.myRiderFsId = null;
+              clearRiderSession();
+              connOffline();
+              fail("No se pudo guardar tu registro en la base de datos (sin conexión). Inténtalo de nuevo cuando tengas internet: no quedó registrado a medias.");
+              render();
+            });
+          });
+        });
+
+        /* ---------- Entrar con nombre + código (recuperar la misma cuenta) ---------- */
+        $("rider-login-form").addEventListener("submit", function(e){
+          e.preventDefault();
+          var msg = $("login-msg");
+          var sel = $("login-rider");
+          var pin = $("login-pin").value.trim();
+          function fail(text){ msg.className = "msg err"; msg.textContent = text; }
+          if (!sel.value){ fail("Elige tu nombre en la lista. Si no apareces, regístrate abajo (una sola vez)."); return; }
+          if (!validPin(pin)){ fail("Escribe tu código de 4 números."); $("login-pin").focus(); return; }
+          var rider = null;
+          for (var i = 0; i < state.riders.length; i++){ if (state.riders[i].id === sel.value) rider = state.riders[i]; }
+          if (!rider){ fail("No encontramos esa ficha. Espera a que sincronice la lista y vuelve a intentarlo."); return; }
+          function finishLogin(note){
+            setMyRider(rider);
+            msg.className = "msg ok";
+            msg.textContent = "¡Hola de nuevo, " + rider.name.split(" ")[0] + "! " + note;
+            toast("Sesión iniciada como " + rider.name + ".");
+            $("login-pin").value = "";
+            render();
+          }
+          if (!riderHasCode(rider)){
+            /* Cuenta creada antes de que existiera el código: en este
+               primer ingreso el repartidor crea el suyo y solo queda
+               guardada su huella, nunca el código en claro. */
+            makePinVerifier(pin).then(function(v){
+              rider.codigoHash = v.hash; rider.codigoSalt = v.salt;
+              setMyRider(rider);
+              updateRiderCodeInFirestore(rider).then(function(){ persistRiderSession(rider); });
+              finishLogin("Tu cuenta era de antes del código, así que el que acabas de poner queda como tu código personal. Este teléfono ya te recuerda.");
+            });
+            return;
+          }
+          verifyRiderPin(rider, pin).then(function(ok){
+            if (!ok){ fail("Ese código no coincide con el de " + rider.name + ". Revisa los 4 números; si lo olvidaste, el administrador te lo puede cambiar desde su panel, con su clave."); return; }
+            if (rider.codigo){ /* migración de legado en claro a huella */
+              makePinVerifier(pin).then(function(v){
+                rider.codigoHash = v.hash; rider.codigoSalt = v.salt;
+                updateRiderCodeInFirestore(rider);
+                finishLogin("Entraste con tu código y este teléfono ya te recuerda: la próxima vez entras directo.");
+              });
+            } else {
+              finishLogin("Entraste con tu código y este teléfono ya te recuerda: la próxima vez entras directo.");
+            }
+          });
+        });
+
+        /* ---------- Salir (teléfono compartido) ---------- */
+        $("btn-rider-logout").addEventListener("click", function(){
+          if (state.gpsActive) stopGps(true);
+          state.myRiderId = null;
+          state.myRiderFsId = null;
+          state.walletBalance = 0;
+          clearRiderSession();
+          toast("Cerraste tu sesión en este teléfono. Para volver a entrar, usa tu nombre y tu código de 4 números.");
           render();
+        });
+
+        /* ---------- Administrador: cambiar el código de un repartidor ---------- */
+        document.addEventListener("click", function(e){
+          var btn = e.target.closest("[data-reset-code]");
+          if (!btn) return;
+          var rid = btn.getAttribute("data-reset-code");
+          var input = document.querySelector('[data-admin-pin="' + rid + '"]');
+          var msg = $("admin-rider-msg");
+          var rider = null;
+          for (var i = 0; i < state.riders.length; i++){ if (state.riders[i].id === rid) rider = state.riders[i]; }
+          if (!rider || !input) return;
+          var pin = input.value.trim();
+          if (!validPin(pin)){ if (msg){ msg.className = "msg err"; msg.textContent = "Escribe un código nuevo de 4 números para " + rider.name + "."; } input.focus(); return; }
+          var claveEl = $("admin-clave");
+          var clave = claveEl ? claveEl.value.trim() : "";
+          if (clave.length < 4){ if (msg){ msg.className = "msg err"; msg.textContent = "Para cambiar un código, primero escribe la clave del administrador (la de arriba). La primera vez que la uses, esa queda registrada."; } if (claveEl) claveEl.focus(); return; }
+          checkAdminClave(clave).then(function(allowed){
+            if (!allowed){ if (msg){ msg.className = "msg err"; msg.textContent = "Esa no es la clave del administrador: no se cambió ningún código."; } return; }
+            makePinVerifier(pin).then(function(v){
+              rider.codigoHash = v.hash; rider.codigoSalt = v.salt;
+              state._adminRiderSig = null;
+              updateRiderCodeInFirestore(rider).then(function(ok){
+                if (msg){ msg.className = "msg ok"; msg.textContent = ok || !fbReady
+                  ? "Código de " + rider.name + " actualizado. Dile que entre con el código nuevo; su cuenta, entregas y monedero quedan igual."
+                  : "Código actualizado en esta pantalla; se confirma en la base cuando vuelva la conexión."; }
+              });
+              input.value = "";
+              toast("Código de " + rider.name + " cambiado.");
+              render();
+            });
+          });
         });
 
         /* ---------- GPS en vivo del repartidor ----------
@@ -2736,7 +3168,7 @@
         }
         $("btn-gps-toggle").addEventListener("click", function(){
           if (state.gpsActive){ stopGps(false); return; }
-          if (!state.myRiderId){ toast("Primero regístrate como repartidor y luego actívate con GPS."); showPanel("repartidor"); return; }
+          if (!state.myRiderId){ toast("Primero entra con tu nombre y tu código (o regístrate una sola vez) y luego actívate con GPS."); showPanel("repartidor"); return; }
           if (!navigator.geolocation){
             var gs0 = $("gps-status"); gs0.className = "gps-status err"; gs0.textContent = "Este navegador no puede compartir ubicación. Prueba desde el navegador de tu celular con el GPS encendido.";
             return;
@@ -2782,7 +3214,7 @@
 
         /* ---------- Monedero del repartidor ---------- */
         $("btn-deposit").addEventListener("click", function(){
-          if (!state.myRiderId){ toast("Primero regístrate como repartidor para tener tu monedero."); return; }
+          if (!state.myRiderId){ toast("Primero entra con tu nombre y tu código (o regístrate una sola vez) para tener tu monedero."); return; }
           state.walletBalance = Math.round((state.walletBalance + 100) * 100) / 100;
           syncMyWalletToFirestore();
           toast("Depósito de $100 acreditado a tu monedero. Saldo: " + money(state.walletBalance) + ".");
@@ -2814,6 +3246,9 @@
           window.open("https://wa.me/?text=" + encodeURIComponent(INVITE), "_blank");
         });
 
+        /* Primero se restaura la sesión guardada en este teléfono (si
+           hay), y luego Firebase enlaza esa sesión con la ficha real. */
+        tryRestoreRiderSession();
         initFirebase();
         render();
       })();
