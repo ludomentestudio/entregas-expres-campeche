@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
     <link rel="icon" href="data:," />
-    <meta name="description" content="Entregas Exprés Campeche — servicio de mandados en moto en San Francisco de Campeche: comida, farmacia, súper, documentos y paquetes, con tarifa cerrada de $50 a $60 por mandado." />
-    <title>Entregas Exprés Campeche — Servicio de mandados en moto</title>
+    <meta name="description" content="Entregas Exprés Campeche — servicio de mandados en moto y coche en San Francisco de Campeche: comida, farmacia, súper, documentos y paquetes, con tarifa cerrada de $50 a $60 por mandado. Repartidores en moto o en coche." />
+    <title>Entregas Exprés Campeche — Servicio de mandados en moto y coche</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Archivo:wght@400;500;600;700&family=Archivo+Expanded:wght@600;700&display=swap" rel="stylesheet" />
@@ -575,8 +575,8 @@
     <header class="hero">
       <div class="wrap hero-grid">
         <div>
-          <span class="hero-kicker">San Francisco de Campeche · Servicio de mandados en moto</span>
-          <h1>Tu mandado en moto, <span class="hl">con precio cerrado</span> y seguimiento en vivo.</h1>
+          <span class="hero-kicker">San Francisco de Campeche · Servicio de mandados en moto y coche</span>
+          <h1>Tu mandado en moto o coche, <span class="hl">con precio cerrado</span> y seguimiento en vivo.</h1>
           <p class="lead">Pides desde tu celular, un repartidor cercano acepta el encargo y lo sigues paso a paso hasta la entrega. Tarifa clara desde el inicio: sin sorpresas y sin descargar ninguna app.</p>
           <div class="hero-ctas">
             <a class="btn btn-accent" href="?vista=cliente">Pedir un mandado</a>
@@ -584,7 +584,7 @@
           </div>
           <nav class="view-nav" aria-label="Vistas de la aplicación">
             <a href="?vista=cliente" data-view-link="cliente">🧑 Vista Cliente<small>Solo pedir un mandado</small></a>
-            <a href="?vista=repartidor" data-view-link="repartidor">🏍️ Vista Repartidor<small>Encargos, GPS y monedero</small></a>
+            <a href="?vista=repartidor" data-view-link="repartidor">🏍️🚗 Vista Repartidor<small>Encargos, GPS y monedero · moto o coche</small></a>
             <a href="?vista=admin" data-view-link="admin">🗂️ Vista Administrador<small>Despacho y mapa en vivo</small></a>
           </nav>
           <div class="hero-stats">
@@ -607,7 +607,7 @@
         <div class="conn-banner" id="conn-banner" role="status"></div>
         <nav class="view-nav app-view-nav" aria-label="Cambiar de vista" style="margin-bottom:14px">
           <a href="?vista=cliente" data-view-link="cliente">🧑 Cliente<small>?vista=cliente</small></a>
-          <a href="?vista=repartidor" data-view-link="repartidor">🏍️ Repartidor<small>?vista=repartidor</small></a>
+          <a href="?vista=repartidor" data-view-link="repartidor">🏍️🚗 Repartidor<small>?vista=repartidor</small></a>
           <a href="?vista=admin" data-view-link="admin">🗂️ Administrador<small>?vista=admin</small></a>
         </nav>
 
@@ -640,7 +640,7 @@
         <div class="live-strip" role="status" aria-live="polite"><span class="live-dot" aria-hidden="true"></span><span><b id="live-strip-count">0 repartidores activos</b> ahora en Campeche · <span id="live-strip-detail">Su ubicación se ve en el mapa en vivo del Administrador, solo mientras comparten su GPS.</span></span><a href="#mapa-en-vivo">Ver mapa en vivo ↓</a></div>
         <div class="role-tabs" role="tablist" aria-label="Elige tu vista">
           <button class="role-tab" role="tab" id="tab-cliente" aria-selected="true" data-panel="cliente">🧑 Cliente<small>Pedir y seguir mi mandado</small></button>
-          <button class="role-tab" role="tab" id="tab-repartidor" aria-selected="false" data-panel="repartidor">🏍️ Repartidor<small>Ver encargos y ganar</small></button>
+          <button class="role-tab" role="tab" id="tab-repartidor" aria-selected="false" data-panel="repartidor">🏍️🚗 Repartidor<small>Ver encargos y ganar · moto o coche</small></button>
           <button class="role-tab" role="tab" id="tab-admin" aria-selected="false" data-panel="admin">🗂️ Administrador<small>Despachar y supervisar</small></button>
         </div>
 
@@ -775,7 +775,7 @@
         <section class="panel" id="panel-repartidor" role="tabpanel" aria-labelledby="tab-repartidor">
           <div class="panel-head">
             <h2>Tablero del repartidor</h2>
-            <p>Aquí caen los encargos en cuanto un cliente los pide. Toma el que te quede cerca, recoge, entrega y cobra. Tú decides cuándo conectarte.</p>
+            <p>Aquí caen los encargos en cuanto un cliente los pide. Toma el que te quede cerca, recoge, entrega y cobra. Tú decides cuándo conectarte — y con qué repartes: <b>moto o coche</b>, el vehículo que tengas.</p>
           </div>
           <div class="promo-banner">🎉 <b>Promoción de lanzamiento:</b> durante las primeras 2 semanas la comisión es <b>$0</b> y no depositas nada — te quedas con el 100% de cada tarifa. Cuando empiece el cobro, la comisión será solo del 10% y funcionará con monedero: depositas $100 para activarte y de ahí se descuenta la comisión de cada viaje (abajo está tu monedero para probarlo).</div>
           <div class="grid-2">
@@ -821,7 +821,15 @@
                   <div class="hint">Como un NIP: 4 números que solo tú sepas. Lo vas a usar si cambias de teléfono o limpias el navegador.</div>
                 </div>
                 <div class="field">
-                  <label for="r-moto">Tu moto (marca y modelo)</label>
+                  <label>¿En qué vas a repartir?</label>
+                  <div class="type-chips" id="vehicle-chips">
+                    <button type="button" class="type-chip" data-vehicle="Moto" aria-pressed="true">🏍️ Moto</button>
+                    <button type="button" class="type-chip" data-vehicle="Coche" aria-pressed="false">🚗 Coche</button>
+                  </div>
+                  <div class="hint">No se limita a motos: entra con el vehículo que tengas, moto o coche, el que te convenga. La tarifa del mandado para el cliente es la misma.</div>
+                </div>
+                <div class="field">
+                  <label for="r-moto" id="r-vehicle-label">Tu moto (marca y modelo)</label>
                   <input id="r-moto" type="text" placeholder="Ej. Italika FT150" />
                 </div>
                 <div class="field">
@@ -835,7 +843,7 @@
                   </select>
                 </div>
                 <div class="field">
-                  <label><input type="checkbox" id="r-own" style="min-height:auto" /> Tengo moto propia y licencia vigente</label>
+                  <label><input type="checkbox" id="r-own" style="min-height:auto" /> <span id="r-own-label">Tengo moto propia y licencia vigente</span></label>
                 </div>
                 <button type="submit" class="btn btn-teal full" id="btn-rider-register">Registrarme como repartidor</button>
                 <div class="msg" id="rider-msg" role="status"></div>
@@ -853,12 +861,12 @@
                 <p style="margin:0 0 8px; color:var(--ink-soft); font-size:.95rem">El listón ligero que conviene en Campeche, copiando lo común de las plataformas sin copiar lo más pesado: MandeYa registra solo con INE y selfie, mientras DiDi y Uber además piden RFC, licencia y tarjeta de circulación. Aquí pediremos:</p>
                 <ul style="margin:0; padding-left:18px; color:var(--ink-soft); font-size:.95rem">
                   <li>INE vigente y una selfie (para que el cliente sepa quién le entrega).</li>
-                  <li>Licencia de motociclista vigente y tarjeta de circulación de tu moto.</li>
-                  <li>Celular con datos y GPS, y casco.</li>
+                  <li>Licencia vigente según tu vehículo — de motociclista si repartes en moto, de automovilista si repartes en coche — y tarjeta de circulación de tu vehículo.</li>
+                  <li>Celular con datos y GPS. Si repartes en moto, también casco.</li>
                   <li>CLABE para pagarte lo cobrado con tarjeta y un contacto de emergencia.</li>
                   <li><b>Monedero con depósito (solo cuando empiece el cobro):</b> depositas $100 para poder trabajar y de ese saldo se descuenta el 10% de comisión de cada viaje. En lanzamiento no se deposita nada.</li>
                 </ul>
-                <p style="margin:8px 0 0; color:var(--muted); font-size:.88rem">Queda una duda abierta: confirmar con la autoridad local (ARTEC) la licencia exacta para moto de reparto en Campeche y si pide algo adicional.</p>
+                <p style="margin:8px 0 0; color:var(--muted); font-size:.88rem">Queda una duda abierta: confirmar con la autoridad local (ARTEC) las licencias exactas para repartir en moto o en coche en Campeche y si pide algo adicional.</p>
               </div>
               <div class="card" style="margin-top:22px">
                 <h3>Repartidores registrados</h3>
@@ -942,7 +950,7 @@
         <p class="sub">Como tus apps de asistencia: cada rol tiene su entrada, pero todo va a la <b>misma base de datos Firebase</b>, con los mismos pedidos, repartidores y monedero. Comparte solo el enlace que le toca a cada quien.</p>
         <div class="view-links-grid">
           <article class="view-link-card"><h3>🧑 Cliente</h3><p>Solo pedir un mandado en 3 pasos y seguirlo. No ve repartidor ni administrador.</p><code>?vista=cliente</code><a class="btn btn-accent full" href="?vista=cliente">Abrir vista Cliente</a></article>
-          <article class="view-link-card"><h3>🏍️ Repartidor</h3><p>Registro, tablero en vivo, GPS, entregas y monedero. No ve el panel de administración.</p><code>?vista=repartidor</code><a class="btn btn-teal full" href="?vista=repartidor">Abrir vista Repartidor</a></article>
+          <article class="view-link-card"><h3>🏍️🚗 Repartidor</h3><p>Registro para repartir en moto o en coche, tablero en vivo, GPS, entregas y monedero. No ve el panel de administración.</p><code>?vista=repartidor</code><a class="btn btn-teal full" href="?vista=repartidor">Abrir vista Repartidor</a></article>
           <article class="view-link-card"><h3>🗂️ Administrador</h3><p>Todos los pedidos, asignación, KPIs y mapa en vivo de repartidores.</p><code>?vista=admin</code><a class="btn btn-ghost full" href="?vista=admin">Abrir vista Administrador</a></article>
         </div>
         <div class="info-box"><p><b>Cómo compartirlos:</b> el enlace base es el mismo para los tres; solo cambia el final. A clientes mándales el que termina en <b>?vista=cliente</b>, a repartidores el de <b>?vista=repartidor</b> y el de <b>?vista=admin</b> guárdalo solo para ti. Si alguien abre el enlace sin final, entra directo como Cliente.</p></div>
@@ -962,7 +970,7 @@
           <div class="how">
             <div class="num">2</div>
             <h3>Un repartidor lo toma</h3>
-            <p>El encargo aparece en el tablero de los motociclistas registrados. El primero que lo acepta se lo queda; si nadie lo toma, el administrador lo asigna a alguien de la zona.</p>
+            <p>El encargo aparece en el tablero de los repartidores registrados, en moto o en coche. El primero que lo acepta se lo queda; si nadie lo toma, el administrador lo asigna a alguien de la zona.</p>
           </div>
           <div class="how">
             <div class="num">3</div>
@@ -1171,7 +1179,7 @@
         <div class="info-box">
           <p><b>Lo que copiamos de ellas para Campeche:</b> el precio cotizado y cerrado antes de pedir (en MandeYa la cotización vale 10 minutos); que el repartidor vea cuánto gana <b>antes</b> de aceptar, nunca a ciegas; los estados del pedido con rastreo por enlace, sin instalar nada; el monedero del repartidor con depósito inicial (aquí será de $100 cuando empiece el cobro), del que se descuenta la comisión de cada viaje, con corte diario o semanal; un tope escrito de $1,000 a lo que el repartidor puede adelantar en una compra; la confirmación de entrega con foto; el botón de emergencia (SOS) y que nombre, foto y teléfono del repartidor se vean solo mientras la entrega está en curso.</p>
           <p><b>Lo que no copiamos:</b> la comisión de 25–30% sobre la venta (es el modelo de los mercados de comida; para un mandadero local sería ruinoso), la asignación opaca sin mostrar el pago, y pedir RFC, seguro y certificación de seguridad desde el primer día.</p>
-          <p><b>Preguntas que quedan abiertas:</b> la comisión exacta de Rappi en Campeche y la de DiDi cuando el negocio entrega con su gente (ninguna es pública); la tarifa vigente de Uber Direct y si llega a Campeche; y la licencia local exacta que la ARTEC pide para repartir en moto en Campeche.</p>
+          <p><b>Preguntas que quedan abiertas:</b> la comisión exacta de Rappi en Campeche y la de DiDi cuando el negocio entrega con su gente (ninguna es pública); la tarifa vigente de Uber Direct y si llega a Campeche; y las licencias locales exactas que la ARTEC pide para repartir en moto o en coche en Campeche.</p>
         </div>
         <p class="srcs">Fuentes: MandeYa, páginas oficiales de <a href="https://www.mandeya.mx/repartidores" target="_blank" rel="noopener">repartidores</a> y <a href="https://www.mandeya.mx/precios" target="_blank" rel="noopener">precios</a> (verificadas el 21 nov 2026) y su blog de <a href="https://www.mandeya.mx/blog/mandaditos-compra-o-recoge-algo-con-un-repartidor" target="_blank" rel="noopener">Mandaditos</a>; comisiones de <a href="https://www.polotab.com/blog/cuanto-cobra-uber-eats-a-los-restaurantes-guia-2025-mexico" target="_blank" rel="noopener">Uber Eats</a> y <a href="https://www.polotab.com/blog/cuanto-cobra-didi-a-los-restaurantes-guia-de-costos-y-rentabilidad-2025-mexico" target="_blank" rel="noopener">DiDi Food</a> según guías que citan los tarifarios oficiales (oct 2026); <a href="https://www.polotab.com/blog/cuanto-cobra-rappi-a-los-restaurantes-guia-2025-mexico" target="_blank" rel="noopener">Rappi</a> (rango reportado, no oficial); <a href="https://www.uber.com/mx/es/newsroom/uber-direct/" target="_blank" rel="noopener">Uber Direct</a> (comunicado oficial, 30 may 2023); <a href="https://www.lalamove.com/es-mx/vehiculos-tarifa-detalles" target="_blank" rel="noopener">Lalamove, precios</a> y su <a href="https://www.lalamove.com/es-mx/faq?section=personal" target="_blank" rel="noopener">FAQ de cobertura</a>; presencia en Campeche: <a href="https://web.didiglobal.com/mx/food/campeche-cam/" target="_blank" rel="noopener">DiDi Food Campeche</a>, <a href="https://www.ubereats.com/mx/location" target="_blank" rel="noopener">ciudades de Uber Eats</a> y <a href="https://www.rappi.com.mx/campeche/restaurantes/category/internacional" target="_blank" rel="noopener">Rappi Campeche</a>.</p>
       </section>
@@ -1179,12 +1187,12 @@
       <!-- ================= ESTRATEGIA ================= -->
       <section class="block" id="estrategia">
         <h2>Plan de lanzamiento</h2>
-        <p class="sub">Primero la flota, luego los clientes. Sin repartidores no hay servicio que vender, así que el arranque está pensado para que los motociclistas ganen desde el día uno.</p>
+        <p class="sub">Primero la flota, luego los clientes. Sin repartidores no hay servicio que vender, así que el arranque está pensado para que los repartidores — en moto o en coche — ganen desde el día uno.</p>
         <div class="phases">
           <div class="phase">
             <span class="when">Fase 1 · Semanas 1–2</span>
             <h3>Reclutar repartidores — gratis</h3>
-            <p>Invitar a los motociclistas de los grupos de WhatsApp de mandaditos que ya existen en Campeche.</p>
+            <p>Invitar a los repartidores de los grupos de WhatsApp de mandaditos que ya existen en Campeche, tengan moto o coche: el que quiera entrar, entra.</p>
             <ul>
               <li>Registro sin costo y <b>comisión $0</b>: todo lo que cobren es suyo.</li>
               <li>Meta inicial: 10–15 repartidores cubriendo Centro, norte y sur.</li>
@@ -1275,7 +1283,7 @@
 
       <footer>
         <div class="frow">
-          <div><b>Entregas Exprés Campeche</b> · Servicio de mandados en moto — San Francisco de Campeche, Campeche.</div>
+          <div><b>Entregas Exprés Campeche</b> · Servicio de mandados en moto y coche — San Francisco de Campeche, Campeche.</div>
           <div>Tarifa: $35 base + $5/km (mínimo $50, máximo $60) · Comisión al repartidor: 10%, descontada de su monedero (depósito de $100 al empezar el cobro) · Lanzamiento: $0</div>
         </div>
       </footer>
@@ -1304,8 +1312,8 @@
         var state = {
           orders: [],
           riders: [
-            { id: "r1", name: "Ejemplo: Juan Poot", zone: "Centro Histórico", demo: true, activo: true, lat: 19.84611, lng: -90.53637, lastSeen: null },
-            { id: "r2", name: "Ejemplo: Luis Ek", zone: "Zona norte (Kalá, Siglo XXI)", demo: true, activo: true, lat: 19.83996, lng: -90.48960, lastSeen: null }
+            { id: "r1", name: "Ejemplo: Juan Poot", zone: "Centro Histórico", demo: true, activo: true, lat: 19.84611, lng: -90.53637, lastSeen: null, vehicleType: "Moto", moto: "Italika FT150" },
+            { id: "r2", name: "Ejemplo: Luis Ek", zone: "Zona norte (Kalá, Siglo XXI)", demo: true, activo: true, lat: 19.83996, lng: -90.48960, lastSeen: null, vehicleType: "Coche", moto: "Nissan Versa" }
           ],
           myRiderId: null,
           myRiderFsId: null,
@@ -1316,6 +1324,7 @@
           myEarnings: 0,
           myDeliveries: 0,
           selectedType: "Comida",
+          selectedVehicleType: "Moto",
           selectedExtra: 0,
           gpsWatchId: null,
           gpsActive: false,
@@ -1345,6 +1354,22 @@
         function toast(msg){
           var t = $("toast"); t.textContent = msg; t.classList.add("show");
           setTimeout(function(){ t.classList.remove("show"); }, 3200);
+        }
+        /* Vehículo del repartidor: moto o coche. Las fichas viejas solo
+           traen el texto de su moto, así que sin tipo guardado se
+           entiende Moto; nunca se pierde ni se duplica una cuenta. */
+        function vehicleTypeOf(rider){
+          if (!rider) return "Moto";
+          var t = rider.vehicleType || rider.vehiculoTipo || "";
+          return String(t).toLowerCase().indexOf("coche") === 0 || String(t).toLowerCase().indexOf("auto") === 0 ? "Coche" : "Moto";
+        }
+        function vehicleIcon(rider){ return vehicleTypeOf(rider) === "Coche" ? "🚗" : "🏍️"; }
+        function vehicleLabel(rider){
+          if (!rider) return "";
+          var model = String(rider.moto || "").trim();
+          if (model === "Moto propia" && vehicleTypeOf(rider) === "Coche") model = "Coche propio";
+          if (model === "Moto propia" || model === "Coche propio" || !model) return vehicleIcon(rider) + " " + vehicleTypeOf(rider);
+          return vehicleIcon(rider) + " " + vehicleTypeOf(rider) + " · " + model;
         }
 
         /* ================= FIREBASE / FIRESTORE =================
@@ -1569,7 +1594,8 @@
           try {
             window.localStorage.setItem(RIDER_SESSION_KEY, JSON.stringify({
               id: rider.id, fsId: rider.fsId || null, name: rider.name || "",
-              phone: rider.phone || "", moto: rider.moto || "", zone: rider.zone || ""
+              phone: rider.phone || "", moto: rider.moto || "", zone: rider.zone || "",
+              vehicleType: vehicleTypeOf(rider)
             }));
           } catch(err){ /* almacenamiento no disponible en este navegador: la sesión dura esta visita y el código sigue siendo la llave */ }
         }
@@ -1608,7 +1634,8 @@
             var restored = {
               id: stored.id || ("r" + (state.nextRider++)),
               fsId: stored.fsId || null,
-              name: stored.name, phone: stored.phone || "", moto: stored.moto || "Moto propia",
+              name: stored.name, phone: stored.phone || "", moto: stored.moto || (stored.vehicleType === "Coche" ? "Coche propio" : "Moto propia"),
+              vehicleType: stored.vehicleType === "Coche" ? "Coche" : "Moto",
               zone: stored.zone || "", demo: false,
               saldoMonedero: state.walletBalance || 0, activo: false, lat: null, lng: null
             };
@@ -1625,7 +1652,9 @@
           return fbDb.collection("riders").add({
             nombre: rider.name,
             whatsapp: rider.phone || "",
-            moto: rider.moto || "Moto propia",
+            moto: rider.moto || (vehicleTypeOf(rider) === "Coche" ? "Coche propio" : "Moto propia"),
+            vehiculo: rider.moto || "",
+            vehiculoTipo: vehicleTypeOf(rider),
             codigoHash: rider.codigoHash || "",
             codigoSalt: rider.codigoSalt || "",
             saldoMonedero: rider.id === state.myRiderId ? state.walletBalance : 0,
@@ -1647,6 +1676,18 @@
           /* Si la ficha vieja traía el código en texto plano, se borra. */
           try { if (window.firebase && firebase.firestore && firebase.firestore.FieldValue) upd.codigo = firebase.firestore.FieldValue.delete(); } catch(err){}
           return fbDb.collection("riders").doc(rider.fsId).update(upd).then(function(){ rider.codigo = ""; return true; }).catch(function(){ connOffline(); return false; });
+        }
+        /* Cuando un repartidor ya registrado vuelve a enviar el registro
+           con el mismo WhatsApp, su vehículo (tipo y modelo) se actualiza
+           en su misma ficha: puede pasar de moto a coche o al revés sin
+           crear otra cuenta. */
+        function updateRiderVehicleInFirestore(rider){
+          if (!fbReady || !fbDb || !rider || !rider.fsId) return Promise.resolve(false);
+          return fbDb.collection("riders").doc(rider.fsId).update({
+            moto: rider.moto || "",
+            vehiculo: rider.moto || "",
+            vehiculoTipo: vehicleTypeOf(rider)
+          }).then(function(){ return true; }).catch(function(){ return false; });
         }
         /* Clave del administrador: su huella vive en config/admin. La
            primera vez que se usa una clave queda registrada (bootstrap);
@@ -1748,6 +1789,9 @@
                 if (data.nombre) existing.name = data.nombre;
                 if (data.whatsapp) existing.phone = data.whatsapp;
                 if (data.moto) existing.moto = data.moto;
+                else if (data.vehiculo) existing.moto = data.vehiculo;
+                if (data.vehiculoTipo) existing.vehicleType = data.vehiculoTipo;
+                else if (data.tipoVehiculo) existing.vehicleType = data.tipoVehiculo;
                 if (data.zona) existing.zone = data.zona;
                 if (data.codigoHash) existing.codigoHash = String(data.codigoHash);
                 if (data.codigoSalt) existing.codigoSalt = String(data.codigoSalt);
@@ -1771,7 +1815,8 @@
                   fsId: doc.id,
                   name: data.nombre || "Repartidor",
                   phone: data.whatsapp || "",
-                  moto: data.moto || "",
+                  moto: data.moto || data.vehiculo || "",
+                  vehicleType: data.vehiculoTipo || data.tipoVehiculo || "Moto",
                   codigoHash: data.codigoHash ? String(data.codigoHash) : "",
                   codigoSalt: data.codigoSalt ? String(data.codigoSalt) : "",
                   codigo: (data.codigo && !data.codigoHash) ? String(data.codigo) : "",
@@ -1836,6 +1881,25 @@
             state.selectedType = chip.getAttribute("data-type");
           });
         });
+        /* ---------- Repartidor: tipo de vehículo (moto o coche) ---------- */
+        function applyVehicleType(type){
+          state.selectedVehicleType = type === "Coche" ? "Coche" : "Moto";
+          document.querySelectorAll("#vehicle-chips .type-chip").forEach(function(c){ c.setAttribute("aria-pressed", c.getAttribute("data-vehicle") === state.selectedVehicleType ? "true" : "false"); });
+          var label = $("r-vehicle-label"), input = $("r-moto"), own = $("r-own-label");
+          if (state.selectedVehicleType === "Coche"){
+            if (label) label.textContent = "Tu coche (marca y modelo)";
+            if (input) input.placeholder = "Ej. Nissan Versa blanco";
+            if (own) own.textContent = "Tengo coche propio y licencia vigente";
+          } else {
+            if (label) label.textContent = "Tu moto (marca y modelo)";
+            if (input) input.placeholder = "Ej. Italika FT150";
+            if (own) own.textContent = "Tengo moto propia y licencia vigente";
+          }
+        }
+        document.querySelectorAll("#vehicle-chips .type-chip").forEach(function(chip){
+          chip.addEventListener("click", function(){ applyVehicleType(chip.getAttribute("data-vehicle")); });
+        });
+        applyVehicleType("Moto");
         document.querySelectorAll("#urgent-chips .urgent-chip").forEach(function(chip){
           chip.addEventListener("click", function(){
             document.querySelectorAll("#urgent-chips .urgent-chip").forEach(function(c){ c.setAttribute("aria-pressed","false"); });
@@ -2629,7 +2693,7 @@
               var first = (r.name.replace(/^Ejemplo: /, "").trim().charAt(0) || "R").toUpperCase();
               return '<div class="live-pin ' + (ord ? "en-entrega" : "disponible") + '" style="left:' + p.x.toFixed(1) + '%; top:' + p.y.toFixed(1) + '%" title="' + esc(r.name) + '">' +
                 '<div class="pin-head"><span>' + esc(first) + '</span></div>' +
-                '<span class="pin-label">' + esc(r.name.replace(/^Ejemplo: /, "")) + (r.demo ? " · Ej." : "") + '</span></div>';
+                '<span class="pin-label">' + esc(vehicleIcon(r) + " " + r.name.replace(/^Ejemplo: /, "")) + (r.demo ? " · Ej." : "") + '</span></div>';
             }).join("");
           }
           var listBox = $("live-rider-list");
@@ -2649,7 +2713,7 @@
                   prog = '<div class="progress-track"><div class="progress-fill' + (ord.extra ? " urgent" : "") + '" style="width:' + pct + '%"></div></div>' +
                     '<div class="progress-label">Avance de ' + esc(ord.id) + ': ' + esc(ord.status) + ' (' + pct + '%) · ' + esc(ord.pickup) + ' → ' + esc(ord.dropoff) + (ord.extra ? ' · 🔥 Urgente +' + money(ord.extra) : '') + '</div>';
                 }
-                return '<div class="live-row"><div class="live-row-top"><div class="who"><b>' + esc(r.name) + (r.id === state.myRiderId ? ' (tú)' : '') + (r.demo ? ' · <span style="color:var(--muted); font-weight:600">ejemplo</span>' : '') + '</b><span>' + esc(r.zone || "") + '</span></div>' + badge + '</div>' +
+                return '<div class="live-row"><div class="live-row-top"><div class="who"><b>' + esc(r.name) + (r.id === state.myRiderId ? ' (tú)' : '') + (r.demo ? ' · <span style="color:var(--muted); font-weight:600">ejemplo</span>' : '') + '</b><span>' + esc(r.zone || "") + ' · ' + esc(vehicleLabel(r)) + '</span></div>' + badge + '</div>' +
                   '<div style="font-size:.86rem; color:var(--ink-soft); margin-top:5px">' + where + '</div>' + prog + '</div>';
               }).join("");
             }
@@ -2689,7 +2753,7 @@
             if (me){
               card.hidden = false; wrap.hidden = true;
               var st = $("rider-session-text");
-              if (st) st.innerHTML = "Sesión como <b>" + esc(me.name) + "</b>" + (me.phone ? " · WhatsApp " + esc(me.phone) : "") + (me.zone ? " · " + esc(me.zone) : "") + ". Ya puedes aceptar encargos del tablero, activar tu GPS y ver tu monedero.";
+              if (st) st.innerHTML = "Sesión como <b>" + esc(me.name) + "</b>" + (me.phone ? " · WhatsApp " + esc(me.phone) : "") + (me.zone ? " · " + esc(me.zone) : "") + " · " + esc(vehicleLabel(me)) + ". Ya puedes aceptar encargos del tablero, activar tu GPS y ver tu monedero.";
             } else {
               card.hidden = true; wrap.hidden = false;
             }
@@ -2714,11 +2778,11 @@
           var box = $("admin-rider-list");
           if (box){
             var real2 = state.riders.filter(function(r){ return !r.demo; });
-            var sig2 = real2.map(function(r){ return r.id + ":" + r.name + ":" + (r.phone || "") + ":" + (riderHasCode(r) ? "1" : "0"); }).join("|");
+            var sig2 = real2.map(function(r){ return r.id + ":" + r.name + ":" + (r.phone || "") + ":" + vehicleLabel(r) + ":" + (riderHasCode(r) ? "1" : "0"); }).join("|");
             if (state._adminRiderSig !== sig2){
               state._adminRiderSig = sig2;
               box.innerHTML = real2.length ? real2.map(function(r){
-                return '<div class="admin-rider-row"><div class="who"><b>' + esc(r.name) + (r.id === state.myRiderId ? " (tú)" : "") + '</b><span>' + esc(maskPhone(r.phone)) + " · " + esc(r.zone || "") + " · " + (riderHasCode(r) ? "Con código ✓" : "Sin código todavía") + '</span></div>' +
+                return '<div class="admin-rider-row"><div class="who"><b>' + esc(r.name) + (r.id === state.myRiderId ? " (tú)" : "") + '</b><span>' + esc(maskPhone(r.phone)) + " · " + esc(r.zone || "") + " · " + esc(vehicleLabel(r)) + " · " + (riderHasCode(r) ? "Con código ✓" : "Sin código todavía") + '</span></div>' +
                   '<input type="password" inputmode="numeric" maxlength="4" placeholder="Nuevo código" data-admin-pin="' + r.id + '" aria-label="Nuevo código de 4 números para ' + esc(r.name) + '" />' +
                   '<button type="button" class="btn btn-outline btn-sm" data-reset-code="' + r.id + '">Cambiar código</button></div>';
               }).join("") : '<div class="empty">Todavía no hay repartidores reales registrados (solo los de ejemplo).</div>';
@@ -2794,7 +2858,7 @@
             var count = state.orders.filter(function(o){ return o.riderId === r.id && o.status === "Entregado"; }).length;
             var active = state.orders.some(function(o){ return o.riderId === r.id && o.status !== "Entregado" && o.status !== "Cancelado"; });
             var gpsTxt = r.activo ? ' · 🟢 Activo en el mapa en vivo' : ' · ⚪ Inactivo (sin GPS)';
-            return '<div class="rider-row"><div class="who"><b>' + esc(r.name) + (r.id === state.myRiderId ? ' (tú)' : '') + '</b><span>' + esc(r.zone) + ' · ' + count + ' entregas' + gpsTxt + (r.id === state.myRiderId ? ' · Monedero: ' + money(state.walletBalance) : '') + '</span></div>' +
+            return '<div class="rider-row"><div class="who"><b>' + esc(r.name) + (r.id === state.myRiderId ? ' (tú)' : '') + '</b><span>' + esc(r.zone) + ' · ' + esc(vehicleLabel(r)) + ' · ' + count + ' entregas' + gpsTxt + (r.id === state.myRiderId ? ' · Monedero: ' + money(state.walletBalance) : '') + '</span></div>' +
               '<span class="badge ' + (active ? 'badge-prog' : 'badge-done') + '">' + (active ? 'En entrega' : 'Disponible') + '</span></div>';
           }).join("");
           /* Admin: los cancelados tampoco aparecen aquí ni cuentan en los totales */
@@ -2812,7 +2876,7 @@
           } else {
             rows.innerHTML = visible.slice().reverse().map(function(o){
               var opts = '<option value="">— Sin asignar —</option>' + state.riders.map(function(r){
-                return '<option value="' + r.id + '"' + (o.riderId === r.id ? ' selected' : '') + '>' + esc(r.name) + '</option>';
+                return '<option value="' + r.id + '"' + (o.riderId === r.id ? ' selected' : '') + '>' + esc(r.name) + ' (' + esc(vehicleTypeOf(r)) + ')</option>';
               }).join("");
               var cancelBtn = canCancelOrder(o)
                 ? '<button class="btn btn-outline btn-sm" data-cancel="' + o.id + '">Cancelar</button>' : '';
@@ -2981,7 +3045,7 @@
           if (!name){ fail("Escribe tu nombre para registrarte."); return; }
           if (normalizePhone(phone).length !== 10){ fail("Escribe tu WhatsApp con 10 números: es tu identidad y con él te reconocemos sin duplicarte."); $("r-phone").focus(); return; }
           if (!validPin(pin)){ fail("Crea tu código personal de 4 números (solo dígitos). Con él recuperas tu cuenta en cualquier teléfono."); $("r-pin").focus(); return; }
-          if (!$("r-own").checked){ fail("Para repartir necesitas moto propia y licencia vigente. Marca la casilla cuando las tengas."); return; }
+          if (!$("r-own").checked){ fail("Para repartir necesitas vehículo propio — moto o coche — y licencia vigente. Marca la casilla cuando los tengas."); return; }
           /* Anti-duplicados: el mismo WhatsApp ya registrado NO crea otra
              ficha. Si el código coincide, es un ingreso; si no coincide,
              se le dirige a entrar con su código o pedir el cambio al admin. */
@@ -2989,6 +3053,9 @@
           if (existing){
             function finishExisting(){
               if (existing.name !== name) existing.name = name;
+              existing.vehicleType = state.selectedVehicleType;
+              existing.moto = $("r-moto").value.trim() || (state.selectedVehicleType === "Coche" ? "Coche propio" : "Moto propia");
+              updateRiderVehicleInFirestore(existing);
               setMyRider(existing);
               msg.className = "msg ok";
               msg.textContent = "Ya estabas registrado: entraste como " + existing.name + ", sin duplicarte. Este teléfono ya te recuerda.";
@@ -3011,7 +3078,7 @@
             });
             return;
           }
-          var rider = { id: "r" + (state.nextRider++), name: name, phone: phone, moto: $("r-moto").value.trim() || "Moto propia", zone: $("r-zone").value, demo: false, fsId: null, saldoMonedero: 0, activo: false, lat: null, lng: null };
+          var rider = { id: "r" + (state.nextRider++), name: name, phone: phone, vehicleType: state.selectedVehicleType, moto: $("r-moto").value.trim() || (state.selectedVehicleType === "Coche" ? "Coche propio" : "Moto propia"), zone: $("r-zone").value, demo: false, fsId: null, saldoMonedero: 0, activo: false, lat: null, lng: null };
           /* El código solo se conserva como huella con sal, nunca en
              claro: primero se calcula la huella y recién entonces se
              guarda la ficha, para que la base nunca reciba el código. */
@@ -3021,7 +3088,7 @@
             setMyRider(rider);
             if (!fbReady || !fbDb){
               msg.className = "msg ok";
-              msg.textContent = "¡Bienvenido, " + name.split(" ")[0] + "! Quedaste registrado en este teléfono, pero ahorita no hay conexión con la base de datos: tu registro se confirma en el sistema cuando vuelva la conexión. Tu código es tu llave si cambias de teléfono.";
+              msg.textContent = "¡Bienvenido, " + name.split(" ")[0] + "! Quedaste registrado en este teléfono como repartidor en " + (rider.vehicleType === "Coche" ? "coche" : "moto") + ", pero ahorita no hay conexión con la base de datos: tu registro se confirma en el sistema cuando vuelva la conexión. Tu código es tu llave si cambias de teléfono.";
               toast("Registrado en este teléfono (sin conexión por ahora).");
               render();
               return;
@@ -3035,7 +3102,7 @@
               btn.disabled = false; btn.textContent = original;
               persistRiderSession(rider);
               msg.className = "msg ok";
-              msg.textContent = "¡Bienvenido, " + name.split(" ")[0] + "! Registro confirmado en el sistema: ya apareces como repartidor y puedes aceptar encargos. Este teléfono te va a recordar; si cambias de teléfono, entra con tu nombre y tu código.";
+              msg.textContent = "¡Bienvenido, " + name.split(" ")[0] + "! Registro confirmado en el sistema: ya apareces como repartidor en " + (rider.vehicleType === "Coche" ? "coche" : "moto") + " y puedes aceptar encargos. Este teléfono te va a recordar; si cambias de teléfono, entra con tu nombre y tu código.";
               toast("Registro confirmado. Ya puedes aceptar encargos.");
               render();
             }).catch(function(){
@@ -3227,7 +3294,7 @@
         });
 
         /* ---------- Compartir ---------- */
-        var INVITE = "🏍️ *Entregas Exprés Campeche* — servicio de mandados en moto. ¿Tienes moto y quieres ganar haciendo mandados? Regístrate gratis: las primeras 2 semanas la comisión es $0 y te quedas con todo lo que cobres; cuando empiece el cobro, será solo 10% y se descuenta de tu monedero (depositas $100 y de ahí se va descontando). ¿Necesitas un mandado? Pide comida, farmacia, súper, documentos o paquetes con tarifa clara de $50 a $60 por mandado. Todo desde un solo enlace, sin descargar apps. 👉 Abre la app de Entregas Exprés Campeche y elige tu vista: Cliente, Repartidor o Administrador.";
+        var INVITE = "🏍️🚗 *Entregas Exprés Campeche* — servicio de mandados en moto y coche. ¿Tienes moto o coche y quieres ganar haciendo mandados? Entra con el vehículo que tengas. Regístrate gratis: las primeras 2 semanas la comisión es $0 y te quedas con todo lo que cobres; cuando empiece el cobro, será solo 10% y se descuenta de tu monedero (depositas $100 y de ahí se va descontando). ¿Necesitas un mandado? Pide comida, farmacia, súper, documentos o paquetes con tarifa clara de $50 a $60 por mandado. Todo desde un solo enlace, sin descargar apps. 👉 Abre la app de Entregas Exprés Campeche y elige tu vista: Cliente, Repartidor o Administrador.";
         function copyText(text, okMsg){
           function done(){ toast(okMsg); }
           if (navigator.clipboard && navigator.clipboard.writeText){
