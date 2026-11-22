@@ -460,6 +460,31 @@
       .progress-fill.urgent{ background:var(--accent); }
       .progress-label{ font-size:.8rem; color:var(--muted); font-weight:600; margin-top:5px; }
 
+      /* Google Maps config */
+      .google-config{ background:var(--surface); border:1.5px solid var(--teal); border-radius:var(--radius); padding:18px 20px; margin-bottom:14px; box-shadow:var(--shadow); }
+      .google-config h3{ font-size:1.08rem; margin-bottom:6px; }
+      .google-config p{ margin:0 0 10px; color:var(--ink-soft); font-size:.94rem; }
+      .google-mode{ background:var(--teal-soft); border-radius:9px; padding:9px 12px; font-size:.9rem; font-weight:600; margin-bottom:12px; }
+      .google-mode.google-on{ background:var(--ok-soft); border:1px solid var(--ok); }
+      .google-key-row{ display:flex; gap:8px; flex-wrap:wrap; align-items:stretch; }
+      .google-key-row input{ flex:1 1 280px; padding:11px 12px; border:1.5px solid var(--line); border-radius:9px; background:var(--surface); min-width:0; }
+      .google-key-row input:focus{ border-color:var(--teal); outline:none; }
+      .google-status{ display:none; margin-top:10px; border-radius:9px; padding:10px 12px; font-size:.9rem; font-weight:600; }
+      .google-status.show{ display:block; }
+      .google-status.ok{ background:var(--ok-soft); color:var(--ok); }
+      .google-status.err{ background:var(--accent-soft); color:var(--accent-deep); }
+      .google-status.info{ background:var(--warn-soft); color:var(--ink); }
+      .google-config details{ margin-top:10px; }
+      .google-config summary{ font-weight:700; font-size:.9rem; cursor:pointer; color:var(--teal); min-height:2rem; }
+      .google-config details ol{ margin:6px 0 0; padding-left:20px; color:var(--ink-soft); font-size:.9rem; }
+      .google-config details li{ margin-bottom:5px; }
+      .google-map{ width:100%; height:560px; border-radius:10px; border:1.5px solid var(--line); overflow:hidden; background:#E8EFEA; }
+      .google-map[hidden]{ display:none; }
+      @media (max-width:640px){ .google-map{ height:78vh; min-height:480px; } }
+      .pac-container{ z-index:9999 !important; font-family:"Archivo",sans-serif !important; border-radius:10px !important; box-shadow:0 12px 30px rgba(0,0,0,.22) !important; }
+      .pac-item{ padding:10px 12px !important; font-size:.95rem !important; line-height:1.4 !important; cursor:pointer; }
+      .pac-item-query{ font-size:.95rem !important; }
+
       footer{ margin-top:52px; border-top:1px solid var(--line); padding:26px 0 40px; color:var(--muted); font-size:.9rem; }
       footer .frow{ display:flex; justify-content:space-between; gap:14px; flex-wrap:wrap; }
       footer b{ color:var(--ink); font-family:"Sora",sans-serif; }
@@ -517,6 +542,33 @@
       <div class="app-shell" id="app">
         <div class="proto-banner">🧪 <b>Prototipo interactivo:</b> prueba el flujo completo en esta misma pantalla — pide como cliente, cambia a Repartidor para aceptar el encargo y a Administrador para despacharlo. Los pedidos y repartidores se guardan en Firebase (Firestore) y se sincronizan en tiempo real entre dispositivos; si la conexión falla, la app sigue funcionando en modo local.</div>
         <div class="conn-banner" id="conn-banner" role="status"></div>
+
+        <div class="google-config" id="config-google">
+          <h3>🔑 Google Maps y Google Places — pega tu clave aquí</h3>
+          <p>Con Google, al escribir una dirección o un negocio te salen sugerencias de <b>todos los negocios de Campeche</b> (farmacias, Oxxo, restaurantes, tiendas…) y el mapa que ves es el de Google. Sin clave, no pasa nada: sigues con el mapa gratuito y la lista local verificada.</p>
+          <div class="google-mode" id="google-mode">Modo actual: <b>Mapa gratuito + lista local</b> — funciona sin clave, con respaldo local.</div>
+          <div class="field" style="margin-bottom:8px">
+            <label for="google-api-key">Clave de Google Maps Platform</label>
+            <div class="google-key-row">
+              <input id="google-api-key" type="text" inputmode="text" autocomplete="off" spellcheck="false" placeholder="Pega aquí tu clave — empieza con AIza…" aria-describedby="google-status" />
+              <button type="button" class="btn btn-teal" id="btn-google-activar">Activar Google Maps</button>
+              <button type="button" class="btn btn-outline" id="btn-google-desactivar" hidden>Usar mapa gratuito</button>
+            </div>
+            <div class="hint">La clave solo se usa en esta pestaña para cargar Google Maps; no se guarda en ningún servidor nuestro. Si cierras o recargas la página, vuelve a pegarla.</div>
+          </div>
+          <div class="google-status" id="google-status" role="status" aria-live="polite"></div>
+          <details>
+            <summary>¿Cómo consigo la clave? Pasos en español</summary>
+            <ol>
+              <li>Entra a Google Cloud Console con la cuenta del negocio y crea un proyecto.</li>
+              <li>Activa la facturación (Google pide tarjeta aunque al inicio quedes en el tramo gratis).</li>
+              <li>Activa dos servicios: <b>Maps JavaScript API</b> y <b>Places API</b>.</li>
+              <li>En «Credenciales», crea una clave de API, restríngela a tu página y a esos dos servicios, cópiala y pégala aquí arriba.</li>
+              <li>Toca «Activar Google Maps»: la búsqueda pasará a Google Places y el mapa a Google Maps al instante.</li>
+            </ol>
+          </details>
+        </div>
+
         <div class="live-strip" role="status" aria-live="polite"><span class="live-dot" aria-hidden="true"></span><span><b id="live-strip-count">0 repartidores activos</b> ahora en Campeche · <span id="live-strip-detail">Su ubicación se ve en el mapa en vivo del Administrador, solo mientras comparten su GPS.</span></span><a href="#mapa-en-vivo">Ver mapa en vivo ↓</a></div>
         <div class="role-tabs" role="tablist" aria-label="Elige tu vista">
           <button class="role-tab" role="tab" id="tab-cliente" aria-selected="true" data-panel="cliente">🧑 Cliente<small>Pedir y seguir mi mandado</small></button>
@@ -528,7 +580,7 @@
         <section class="panel active" id="panel-cliente" role="tabpanel" aria-labelledby="tab-cliente">
           <div class="panel-head">
             <h2>Pide tu mandado</h2>
-            <p>Completa el formulario y tu pedido aparece al instante en el tablero de repartidores. Cada punto se fija <b>en el mapa grande, sin salir de esta página</b>: escribe la dirección o el nombre del negocio (si hay varias sucursales, eliges la tuya), toca «Ubicar en el mapa» y mueve el pin hasta la puerta. Nada más: <b>no hay que escoger zona</b> — Campeche es chico y el repartidor llega con el punto exacto, que además puede abrir en Google Maps.</p>
+            <p>Completa el formulario y tu pedido aparece al instante en el tablero de repartidores. Cada punto se fija <b>en el mapa grande, sin salir de esta página</b>: escribe la dirección o el nombre del negocio y, <b>si activaste Google arriba, te salen sugerencias de Google Places mientras escribes</b> (si hay varias sucursales, eliges la tuya); sin clave, toca «Ubicar en el mapa» y busca con el mapa gratuito y la lista local. Mueve el pin hasta la puerta. Nada más: <b>no hay que escoger zona</b> — Campeche es chico y el repartidor llega con el punto exacto.</p>
           </div>
           <div class="grid-2">
             <form class="card" id="order-form" novalidate>
@@ -562,14 +614,15 @@
                 <div class="loc-status" id="pickup-status" role="status"></div>
                 <div class="loc-selected" id="pickup-selected">✓ <b>Punto fijado:</b> <span id="pickup-selected-label"></span> · <a id="pickup-selected-link" href="#" target="_blank" rel="noopener">Ver en Google Maps</a> <button type="button" id="pickup-clear">Quitar</button></div>
                 <div class="loc-picker" id="pickup-picker" hidden>
-                  <p class="pick-help">Escribe arriba la dirección <b>o el nombre del negocio</b> (por ejemplo, «Farmacia Guadalajara»: si hay varias sucursales, aquí te salen para que elijas la tuya), toca «Buscar» y <b>mueve el pin naranja hasta la puerta</b> (toca el mapa o arrástralo). Ese punto exacto es el que recibe el repartidor.</p>
+                  <p class="pick-help">Escribe arriba la dirección <b>o el nombre del negocio</b>. <b>Con Google activado</b>, al escribir te salen sugerencias de Google Places: toca la tuya y el pin cae ahí. <b>Sin clave</b>, toca «Buscar» y elige entre pocas opciones del mapa gratuito y la lista local. Luego <b>mueve el pin hasta la puerta</b> (toca el mapa o arrástralo). Ese punto exacto es el que recibe el repartidor.</p>
                   <div class="map-search-row">
                     <button type="button" class="loc-btn" id="pickup-search-btn">🔍 Buscar lo que escribí en el mapa</button>
                   </div>
                   <div class="leaflet-map" id="pickup-map" role="application" aria-label="Mapa interactivo grande para fijar el punto de recogida: toca el mapa o arrastra el pin para ajustar el punto exacto"></div>
+                  <div class="google-map" id="pickup-gmap" hidden role="application" aria-label="Mapa de Google Maps para fijar el punto de recogida: toca el mapa o arrastra el pin para ajustar el punto exacto"></div>
                   <div class="map-adjust-bar" id="pickup-adjust-bar">📍 Todavía no hay punto: busca tu dirección o toca el mapa para colocar el pin donde se recoge.</div>
                   <div class="search-results" id="pickup-results"></div>
-                  <div class="loc-credit">Mapa © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">Colaboradores de OpenStreetMap</a> · El punto fijado se abre en Google Maps para el repartidor.</div>
+                  <div class="loc-credit loc-credit-dynamic">Sin clave: mapa © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">Colaboradores de OpenStreetMap</a>. Con clave activada: mapa y búsqueda de Google Maps / Google Places. El punto fijado se abre en Google Maps para el repartidor.</div>
                 </div>
                 <input id="f-pickup-maps" name="recogidaMaps" type="hidden" />
               </div>
@@ -583,14 +636,15 @@
                 <div class="loc-status" id="dropoff-status" role="status"></div>
                 <div class="loc-selected" id="dropoff-selected">✓ <b>Punto fijado:</b> <span id="dropoff-selected-label"></span> · <a id="dropoff-selected-link" href="#" target="_blank" rel="noopener">Ver en Google Maps</a> <button type="button" id="dropoff-clear">Quitar</button></div>
                 <div class="loc-picker" id="dropoff-picker" hidden>
-                  <p class="pick-help">Escribe arriba la dirección <b>o el nombre del negocio</b> (por ejemplo, «Farmacia Guadalajara»: si hay varias sucursales, aquí te salen para que elijas la tuya), toca «Buscar» y <b>mueve el pin naranja hasta la puerta</b> (toca el mapa o arrástralo). Ese punto exacto es el que recibe el repartidor.</p>
+                  <p class="pick-help">Escribe arriba la dirección <b>o el nombre del negocio</b>. <b>Con Google activado</b>, al escribir te salen sugerencias de Google Places: toca la tuya y el pin cae ahí. <b>Sin clave</b>, toca «Buscar» y elige entre pocas opciones del mapa gratuito y la lista local. Luego <b>mueve el pin hasta la puerta</b> (toca el mapa o arrástralo). Ese punto exacto es el que recibe el repartidor.</p>
                   <div class="map-search-row">
                     <button type="button" class="loc-btn" id="dropoff-search-btn">🔍 Buscar lo que escribí en el mapa</button>
                   </div>
                   <div class="leaflet-map" id="dropoff-map" role="application" aria-label="Mapa interactivo grande para fijar el punto de entrega: toca el mapa o arrastra el pin para ajustar el punto exacto"></div>
+                  <div class="google-map" id="dropoff-gmap" hidden role="application" aria-label="Mapa de Google Maps para fijar el punto de entrega: toca el mapa o arrastra el pin para ajustar el punto exacto"></div>
                   <div class="map-adjust-bar" id="dropoff-adjust-bar">📍 Todavía no hay punto: busca la dirección o toca el mapa para colocar el pin donde se entrega.</div>
                   <div class="search-results" id="dropoff-results"></div>
-                  <div class="loc-credit">Mapa © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">Colaboradores de OpenStreetMap</a> · El punto fijado se abre en Google Maps para el repartidor.</div>
+                  <div class="loc-credit loc-credit-dynamic">Sin clave: mapa © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">Colaboradores de OpenStreetMap</a>. Con clave activada: mapa y búsqueda de Google Maps / Google Places. El punto fijado se abre en Google Maps para el repartidor.</div>
                 </div>
                 <input id="f-dropoff-maps" name="entregaMaps" type="hidden" />
               </div>
@@ -796,7 +850,7 @@
           <div class="how">
             <div class="num">1</div>
             <h3>«Aquí recoge» y «aquí entrega»</h3>
-            <p>Ya funciona sin salir de la página y sin clave de Google: en el formulario, cada punto trae el botón «Ubicar en el mapa», que abre un mapa interactivo grande de Campeche (OpenStreetMap) — en el celular ocupa casi toda la pantalla, para tocar y mover el pin sin batallar. El cliente escribe la dirección o el nombre del negocio, toca «Buscar lo que escribí en el mapa» y el mapa lo lleva a la ubicación aproximada; si el negocio tiene varias sucursales (como Farmacia Guadalajara), salen las opciones de Campeche para elegir la correcta. De ahí él mismo termina de seleccionar el punto exacto tocando el mapa o arrastrando el pin hasta la puerta. El flujo quedó corto a propósito: buscar, ajustar el pin y listo — sin pegar enlaces y sin escoger zona, porque Campeche es chico y manda el punto exacto. Ese punto se convierte solo en enlace de Google Maps y el repartidor lo abre con el botón «Ver en Google Maps». El mapa incrustado de Google como tal pediría su clave de pago; por eso la selección se hace aquí y Google Maps se usa para navegar hasta el punto.</p>
+            <p><b>Ya puedes usar Google de verdad:</b> arriba del formulario está el campo visible para pegar tu clave de Google Maps. Al activarla, la búsqueda usa <b>Google Places Autocomplete</b> — al escribir te salen sugerencias de todos los negocios de Campeche, incluidas farmacias similares y todas las sucursales — y el mapa grande pasa a ser <b>Google Maps</b>. El cliente toca su sugerencia, el pin cae ahí y termina de ajustarlo hasta la puerta tocando el mapa o arrastrándolo. <b>Sin clave, sigue el respaldo:</b> el mapa gratuito grande (OpenStreetMap, casi toda la pantalla en el celular) más la lista local verificada (como las 16 Farmacia Guadalajara), con máximo pocas opciones para no confundir y sin escoger zona, porque Campeche es chico y manda el punto exacto. En ambos modos el punto se convierte solo en enlace de Google Maps para que el repartidor navegue hasta ahí.</p>
           </div>
           <div class="how">
             <div class="num">2</div>
@@ -815,7 +869,7 @@
           </div>
         </div>
         <div class="info-box">
-          <p><b>Costo de Google Maps:</b> desde el 1 de marzo de 2025 Google quitó el crédito mensual de $200 USD y pasó a llamadas gratis por servicio (el nivel Essentials incluye 10,000 llamadas al mes); ya en cobro, las rutas cuestan $5 USD por cada 1,000 consultas. Con unos 30 pedidos al día (2 a 4 consultas por pedido), el negocio cabe en el tramo gratis si se guarda la dirección de los clientes frecuentes en vez de buscarla en cada pedido. Las cifras hay que confirmarlas en la página de precios de Google el día de contratar, porque Google las actualiza seguido.</p>
+          <p><b>Costo de Google Maps:</b> desde el 1 de marzo de 2025 Google quitó el crédito mensual de $200 USD y pasó a topes gratis por servicio. Para lo que usa esta app — <b>Autocomplete de Places: 10,000 gratis al mes y luego $2.83 USD por cada 1,000</b>; mapa (Maps JavaScript): 10,000 cargas gratis y luego $7 por cada 1,000 — con unos 100 pedidos al día al inicio quedas en $0, dentro de lo gratis. Sí hace falta tarjeta en Google Cloud aunque pagues $0, con tope de gasto y la clave restringida a esta página. Confirma las cifras en la página de precios de Google el día de activarla, porque Google las actualiza seguido.</p>
         </div>
       </section>
 
@@ -1526,6 +1580,28 @@
            Sin clave de Google y sin salir de la página. Si Leaflet o la
            búsqueda fallan (sin red), quedan el GPS y los lugares
            frecuentes como respaldo. */
+        var googleState = { key: "", ready: false, loading: false };
+        var locControllers = [];
+        function setGoogleStatus(msg, kind){
+          var el = document.getElementById("google-status");
+          if (!el) return;
+          if (!msg){ el.className = "google-status"; el.textContent = ""; return; }
+          el.className = "google-status show " + (kind || "info");
+          el.textContent = msg;
+        }
+        function updateGoogleMode(){
+          var m = document.getElementById("google-mode");
+          if (!m) return;
+          if (googleState.ready){
+            m.className = "google-mode google-on";
+            m.innerHTML = "Modo actual: <b>Google Maps + Google Places</b> — búsqueda de todos los negocios de Campeche y mapa de Google activos.";
+          } else {
+            m.className = "google-mode";
+            m.innerHTML = "Modo actual: <b>Mapa gratuito + lista local</b> — funciona sin clave, con respaldo local.";
+          }
+          var d = document.getElementById("btn-google-desactivar");
+          if (d) d.hidden = !googleState.ready;
+        }
         var CAMPECHE_CENTER = { lat: 19.8454, lng: -90.5295 };
         function setupLocation(prefix, inputId, mapsId){
           var input = $(inputId), mapsInput = $(mapsId);
@@ -1535,10 +1611,71 @@
           var resultsBox = $(prefix + "-results");
           var adjustBar = $(prefix + "-adjust-bar");
           var mapObj = null, marker = null, mapFailed = false;
+          var gMap = null, gMarker = null, gAutocomplete = null, gService = null;
+          var gmapEl = $(prefix + "-gmap"), leafletEl = $(prefix + "-map");
           var verb = prefix === "pickup" ? "se recoge" : "se entrega";
 
           function pinIcon(){
             return L.divIcon({ className: "map-pin-wrap", html: '<div class="map-pin"><span>●</span></div>', iconSize: [34, 34], iconAnchor: [17, 32] });
+          }
+          function ensureGoogleMap(){
+            if (gMap || !window.google || !google.maps) return;
+            if (!gmapEl) return;
+            var start = locPoints[prefix] || CAMPECHE_CENTER;
+            gMap = new google.maps.Map(gmapEl, { center: { lat: start.lat, lng: start.lng }, zoom: locPoints[prefix] ? 17 : 13, mapTypeControl: false, streetViewControl: false, fullscreenControl: true, zoomControl: true });
+            gMarker = new google.maps.Marker({ map: gMap, draggable: true, position: locPoints[prefix] ? { lat: start.lat, lng: start.lng } : undefined });
+            gMarker.addListener("dragend", function(){ var pos = gMarker.getPosition(); if (pos) applyPoint(pos.lat(), pos.lng(), { exact: true, fromMap: true }); });
+            gMap.addListener("click", function(e){ if (e && e.latLng) applyPoint(e.latLng.lat(), e.latLng.lng(), { exact: true }); });
+            try { gService = new google.maps.places.PlacesService(gMap); } catch(e){ gService = null; }
+            if (locPoints[prefix]) moveGoogleMarker(start.lat, start.lng, 0);
+          }
+          function moveGoogleMarker(lat, lng, zoom){
+            if (!googleState.ready) return;
+            ensureGoogleMap();
+            if (!gMap || !gMarker) return;
+            gMarker.setPosition({ lat: lat, lng: lng });
+            gMap.setCenter({ lat: lat, lng: lng });
+            if (zoom) gMap.setZoom(zoom);
+          }
+          function showGoogleMap(){
+            if (!googleState.ready) return false;
+            if (leafletEl) leafletEl.style.display = "none";
+            if (gmapEl) gmapEl.hidden = false;
+            ensureGoogleMap();
+            if (gMap && window.google){ setTimeout(function(){ try { google.maps.event.trigger(gMap, "resize"); var pt = locPoints[prefix] || CAMPECHE_CENTER; gMap.setCenter({ lat: pt.lat, lng: pt.lng }); } catch(e){} }, 80); }
+            return true;
+          }
+          function showFreeMap(){
+            if (gmapEl) gmapEl.hidden = true;
+            if (leafletEl) leafletEl.style.display = "";
+          }
+          function attachAutocomplete(){
+            if (gAutocomplete || !window.google || !google.maps || !google.maps.places) return;
+            var bounds = new google.maps.LatLngBounds(new google.maps.LatLng(19.74, -90.66), new google.maps.LatLng(19.92, -90.38));
+            gAutocomplete = new google.maps.places.Autocomplete(input, { bounds: bounds, strictBounds: false, componentRestrictions: { country: "mx" }, fields: ["geometry", "name", "formatted_address", "place_id"] });
+            gAutocomplete.addListener("place_changed", function(){
+              var place = gAutocomplete.getPlace();
+              if (!place || !place.geometry || !place.geometry.location){
+                status.textContent = "Google no devolvió la ubicación de ese lugar. Toca Buscar o toca el mapa para fijar el punto exacto.";
+                status.classList.add("show"); return;
+              }
+              var lat = place.geometry.location.lat(), lng = place.geometry.location.lng();
+              var title = ((place.name || "") + (place.formatted_address ? " — " + place.formatted_address : "")).trim() || input.value;
+              if (picker.hidden){ picker.hidden = false; pickBtn.setAttribute("aria-expanded", "true"); pickBtn.textContent = "✕ Cerrar el mapa"; }
+              showGoogleMap();
+              var pt = { name: title, detail: "", lat: Math.round(lat * 10000000) / 10000000, lng: Math.round(lng * 10000000) / 10000000, zone: null };
+              setPoint(pt, { approx: true, keepInput: false, zoom: 17 });
+              status.textContent = "Google Places encontró: " + title + ". Ajusta el pin si hace falta para dejarlo justo en la puerta.";
+              status.classList.add("show");
+            });
+          }
+          function activateGoogle(){
+            showGoogleMap();
+            attachAutocomplete();
+          }
+          function deactivateGoogle(){
+            showFreeMap();
+            if (mapObj) setTimeout(function(){ try { mapObj.invalidateSize(); } catch(e){} }, 60);
           }
           function setAdjust(mode, text){
             if (!adjustBar) return;
@@ -1579,6 +1716,7 @@
             markRows();
             autoDistance();
             moveMarker(pt.lat, pt.lng, opts.zoom || 0);
+            moveGoogleMarker(pt.lat, pt.lng, opts.zoom || 0);
             if (opts.approx){
               setAdjust("approx", "🎯 Ubicación aproximada de «" + pt.name + "». Ahora ajusta el punto exacto: toca el mapa justo donde " + verb + " o arrastra el pin naranja hasta la puerta.");
               status.textContent = "Se encontró la zona aproximada. Ajusta el pin en el mapa para fijar el punto exacto.";
@@ -1628,6 +1766,8 @@
             }
           }
           function ensureMap(){
+            if (googleState.ready){ showGoogleMap(); attachAutocomplete(); return; }
+            showFreeMap();
             if (mapObj || mapFailed) { if (mapObj) setTimeout(function(){ mapObj.invalidateSize(); }, 60); return; }
             if (!window.L){
               mapFailed = true;
@@ -1721,6 +1861,39 @@
               });
             }).catch(function(){ return []; });
           }
+          function renderResultsList(results, q){
+            if (!results.length){
+              status.textContent = "No se encontró «" + q + "» tal cual. Revisa cómo se escribe, agrega la calle o la colonia, o toca directamente el mapa en la zona donde " + verb + " y coloca ahí el pin: ese punto exacto es el que vale.";
+              setAdjust("approx", "📍 No se encontró: acércate con el mapa a la zona y toca justo donde " + verb + " para colocar el pin.");
+              if (mapObj && !googleState.ready) mapObj.setView([CAMPECHE_CENTER.lat, CAMPECHE_CENTER.lng], 14);
+              if (gMap) gMap.setCenter({ lat: CAMPECHE_CENTER.lat, lng: CAMPECHE_CENTER.lng });
+              return;
+            }
+            resultsBox.innerHTML = "";
+            var label = document.createElement("p");
+            label.className = "sr-label";
+            label.textContent = results.length === 1 ? "Se marcó este resultado — ajusta el pin si hace falta:" : "Encontré " + results.length + " opciones en Campeche — toca la correcta y ajusta el pin:";
+            resultsBox.appendChild(label);
+            results.forEach(function(it, i){
+              var lat = Math.round(it.lat * 10000000) / 10000000, lng = Math.round(it.lng * 10000000) / 10000000;
+              var b = document.createElement("button");
+              b.type = "button"; b.className = "place-row";
+              b.setAttribute("aria-pressed", i === 0 ? "true" : "false");
+              b.innerHTML = '<span class="pin-num">' + (i + 1) + '</span><span><b>' + esc(it.title) + '</b><span class="detail">' + esc(it.detail) + ' · ' + lat.toFixed(7) + ', ' + lng.toFixed(7) + '</span></span>';
+              b.addEventListener("click", function(){
+                Array.prototype.forEach.call(resultsBox.querySelectorAll(".place-row"), function(rw){ rw.setAttribute("aria-pressed", "false"); });
+                b.setAttribute("aria-pressed", "true");
+                var pt = { name: it.title, detail: "", lat: lat, lng: lng, zone: null };
+                setPoint(pt, { approx: true, keepInput: true, zoom: 17 });
+              });
+              resultsBox.appendChild(b);
+            });
+            var f0 = results[0];
+            var fpt = { name: f0.title, detail: "", lat: Math.round(f0.lat * 10000000) / 10000000, lng: Math.round(f0.lng * 10000000) / 10000000, zone: null };
+            setPoint(fpt, { approx: true, keepInput: true, zoom: 17 });
+            if (mapObj && !googleState.ready) setTimeout(function(){ mapObj.invalidateSize(); mapObj.setView([fpt.lat, fpt.lng], 17); }, 60);
+            if (gMap) setTimeout(function(){ try { google.maps.event.trigger(gMap, "resize"); gMap.setCenter({ lat: fpt.lat, lng: fpt.lng }); gMap.setZoom(17); } catch(e){} }, 60);
+          }
           function geocodeSearch(){
             var q = input.value.trim();
             if (!q){
@@ -1733,6 +1906,39 @@
             status.textContent = "Buscando «" + q + "» en Campeche…";
             status.classList.add("show");
             resultsBox.innerHTML = "";
+            if (googleState.ready && window.google && google.maps && google.maps.places){
+              var nqG = normText(q);
+              var localG = KNOWN_PLACES.filter(function(kp){ return kp.keys.some(function(k){ return nqG.indexOf(k) !== -1; }); }).map(function(kp){ return { title: kp.name + " — " + kp.detail, detail: kp.kind + " · Lista local verificada", lat: kp.lat, lng: kp.lng }; });
+              ensureGoogleMap();
+              var svc = gService;
+              if (!svc){ try { svc = new google.maps.places.PlacesService(gMap || document.createElement("div")); } catch(e){ svc = null; } }
+              if (svc){
+                var req = { query: q + ", San Francisco de Campeche, Campeche", location: new google.maps.LatLng(CAMPECHE_CENTER.lat, CAMPECHE_CENTER.lng), radius: 20000 };
+                svc.textSearch(req, function(resG, stG){
+                  var ok = (stG === google.maps.places.PlacesServiceStatus.OK && resG && resG.length);
+                  if (!ok){
+                    if (localG.length){ renderResultsList(localG.slice(0, localG.length), q); status.textContent = "Google Places no devolvió resultados para «" + q + "», pero sí está en la lista local verificada. Elige tu sucursal abajo."; status.classList.add("show"); return; }
+                    status.textContent = "Google Places no encontró «" + q + "» en Campeche. Revisa la escritura, agrega calle o colonia, o toca el mapa de Google para fijar el pin justo donde " + verb + ".";
+                    status.classList.add("show"); return;
+                  }
+                  var seenG = {}; localG.forEach(function(it){ seenG[it.lat.toFixed(4) + "," + it.lng.toFixed(4)] = true; });
+                  var mergedG = localG.slice();
+                  resG.forEach(function(pl){
+                    if (!pl.geometry || !pl.geometry.location) return;
+                    var la = pl.geometry.location.lat(), lo = pl.geometry.location.lng();
+                    if (!inCampeche(la, lo)) return;
+                    var key = la.toFixed(4) + "," + lo.toFixed(4);
+                    if (seenG[key]) return; seenG[key] = true;
+                    mergedG.push({ title: (pl.name || q) + (pl.formatted_address ? " — " + pl.formatted_address : ""), detail: "Google Places", lat: la, lng: lo });
+                  });
+                  var lim = localG.length ? Math.max(localG.length, Math.min(mergedG.length, 10)) : Math.min(mergedG.length, 5);
+                  renderResultsList(mergedG.slice(0, lim), q);
+                  status.textContent = "Resultados de Google Places para «" + q + "». Toca la opción correcta y ajusta el pin hasta la puerta.";
+                  status.classList.add("show");
+                });
+                return;
+              }
+            }
             /* La misma frase de varias formas: tal cual, con
                «, Campeche» y cambiando farmacia↔farmacias, porque
                cada forma puede traer una sucursal distinta. */
@@ -1900,9 +2106,80 @@
               autoDistance();
             }
           });
+          locControllers.push({ prefix: prefix, activateGoogle: activateGoogle, deactivateGoogle: deactivateGoogle, ensureMap: ensureMap });
         }
         setupLocation("pickup", "f-pickup", "f-pickup-maps");
         setupLocation("dropoff", "f-dropoff", "f-dropoff-maps");
+
+        /* ---------- Google Maps: cargar con la clave pegada ---------- */
+        window.__entregasGoogleListo = function(){
+          googleState.loading = false;
+          if (!window.google || !google.maps || !google.maps.places){
+            googleState.ready = false; updateGoogleMode();
+            setGoogleStatus("Google cargó, pero no se encontró Places. Revisa que la clave tenga activados Maps JavaScript API y Places API. Sigues con el mapa gratuito y la lista local.", "err");
+            return;
+          }
+          googleState.ready = true; updateGoogleMode();
+          locControllers.forEach(function(c){ try { c.activateGoogle(); } catch(e){} });
+          setGoogleStatus("✓ Google Maps activado: ahora escribe un negocio o dirección en «¿Dónde se recoge?» o «¿Dónde se entrega?» y te saldrán sugerencias de Google Places con todos los negocios de Campeche. El mapa de cada punto ya es el de Google; mueve el pin hasta la puerta para fijar el punto exacto.", "ok");
+          toast("Google Maps activado: búsqueda con Google Places.");
+        };
+        window.gm_authFailure = function(){
+          googleState.loading = false; googleState.ready = false; updateGoogleMode();
+          locControllers.forEach(function(c){ try { c.deactivateGoogle(); } catch(e){} });
+          setGoogleStatus("Google rechazó la clave (clave no válida, sin facturación o sin los servicios activados). Revisa en Google Cloud que estén activados Maps JavaScript API y Places API y que la clave no tenga restricciones que bloqueen esta página. Mientras tanto sigues con el mapa gratuito y la lista local, sin problema.", "err");
+        };
+        function loadGoogleWithKey(key){
+          if (googleState.loading) return;
+          googleState.loading = true; googleState.key = key;
+          setGoogleStatus("Cargando Google Maps con tu clave…", "info");
+          var oldScript = document.getElementById("google-maps-script");
+          if (oldScript) oldScript.remove();
+          var s = document.createElement("script");
+          s.id = "google-maps-script";
+          s.src = "https://maps.googleapis.com/maps/api/js?key=" + encodeURIComponent(key) + "&libraries=places&language=es&region=MX&callback=__entregasGoogleListo";
+          s.async = true; s.defer = true;
+          s.onerror = function(){
+            googleState.loading = false; googleState.ready = false; updateGoogleMode();
+            setGoogleStatus("No se pudo cargar Google Maps (revisa tu conexión o la clave). Sigues con el mapa gratuito y la lista local como respaldo.", "err");
+          };
+          document.head.appendChild(s);
+          setTimeout(function(){
+            if (googleState.loading && !googleState.ready){
+              googleState.loading = false;
+              setGoogleStatus("Google tardó en responder. Si la clave es correcta, toca de nuevo «Activar Google Maps»; si no, revisa que tenga Maps JavaScript API y Places API activados. Sigues con el mapa gratuito.", "err");
+            }
+          }, 12000);
+        }
+        (function bindGoogleKey(){
+          var btn = document.getElementById("btn-google-activar");
+          var btnOff = document.getElementById("btn-google-desactivar");
+          var inputKey = document.getElementById("google-api-key");
+          if (!btn || !inputKey) return;
+          btn.addEventListener("click", function(){
+            var key = inputKey.value.trim();
+            if (!key){
+              setGoogleStatus("Pega primero tu clave de Google Maps en el campo de arriba. Si todavía no tienes clave, no pasa nada: la app sigue con el mapa gratuito y la lista local verificada.", "info");
+              inputKey.focus(); return;
+            }
+            if (key.length < 20){
+              setGoogleStatus("Esa clave se ve muy corta para ser de Google Maps (suelen empezar con «AIza»). Revísala y vuelve a pegarla completa.", "err");
+              inputKey.focus(); return;
+            }
+            if (googleState.ready && googleState.key === key){
+              setGoogleStatus("Google Maps ya está activado con esa clave. Escribe un negocio en el formulario y verás las sugerencias de Google Places.", "ok"); return;
+            }
+            loadGoogleWithKey(key);
+          });
+          inputKey.addEventListener("keydown", function(e){ if (e.key === "Enter"){ e.preventDefault(); btn.click(); } });
+          if (btnOff) btnOff.addEventListener("click", function(){
+            googleState.ready = false; googleState.loading = false; updateGoogleMode();
+            locControllers.forEach(function(c){ try { c.deactivateGoogle(); } catch(e){} });
+            setGoogleStatus("Volviste al mapa gratuito con la lista local. Puedes volver a activar Google cuando quieras pegando la clave.", "info");
+            toast("Mapa gratuito activado como respaldo.");
+          });
+          updateGoogleMode();
+        })();
 
         /* ---------- Render helpers ---------- */
         function badgeFor(status){
