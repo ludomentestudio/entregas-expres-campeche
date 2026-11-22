@@ -118,6 +118,13 @@
         border-radius:12px; padding:13px 16px; font-size:.94rem; margin-bottom:12px;
       }
       .proto-banner b{ color:var(--accent-deep); }
+      .conn-banner{
+        display:none; align-items:center; gap:8px;
+        border-radius:10px; padding:9px 14px; font-size:.86rem; font-weight:600; margin-bottom:12px;
+      }
+      .conn-banner.show{ display:flex; }
+      .conn-banner.online{ background:var(--ok-soft); color:var(--ok); border:1px solid var(--ok); }
+      .conn-banner.offline{ background:var(--warn-soft); color:var(--warn); border:1px solid var(--gold); }
       .role-tabs{
         display:grid; grid-template-columns:repeat(3,1fr); gap:8px;
         background:var(--surface-2); border:1px solid var(--line); border-radius:14px; padding:6px;
@@ -390,7 +397,8 @@
     <main class="wrap">
       <!-- ================= APP ================= -->
       <div class="app-shell" id="app">
-        <div class="proto-banner">🧪 <b>Prototipo interactivo:</b> prueba el flujo completo en esta misma pantalla — pide como cliente, cambia a Repartidor para aceptar el encargo y a Administrador para despacharlo. La versión en operación conectará los celulares de clientes y repartidores en tiempo real.</div>
+        <div class="proto-banner">🧪 <b>Prototipo interactivo:</b> prueba el flujo completo en esta misma pantalla — pide como cliente, cambia a Repartidor para aceptar el encargo y a Administrador para despacharlo. Los pedidos y repartidores se guardan en Firebase (Firestore) y se sincronizan en tiempo real entre dispositivos; si la conexión falla, la app sigue funcionando en modo local.</div>
+        <div class="conn-banner" id="conn-banner" role="status"></div>
         <div class="role-tabs" role="tablist" aria-label="Elige tu vista">
           <button class="role-tab" role="tab" id="tab-cliente" aria-selected="true" data-panel="cliente">🧑 Cliente<small>Pedir y seguir mi mandado</small></button>
           <button class="role-tab" role="tab" id="tab-repartidor" aria-selected="false" data-panel="repartidor">🏍️ Repartidor<small>Ver encargos y ganar</small></button>
@@ -506,6 +514,10 @@
                 <div class="field">
                   <label for="r-phone">WhatsApp</label>
                   <input id="r-phone" type="tel" placeholder="981 000 0000" />
+                </div>
+                <div class="field">
+                  <label for="r-moto">Tu moto (marca y modelo)</label>
+                  <input id="r-moto" type="text" placeholder="Ej. Italika FT150" />
                 </div>
                 <div class="field">
                   <label for="r-zone">Tu zona base</label>
@@ -917,6 +929,9 @@
 
     <div class="toast" id="toast" role="status"></div>
 
+    <!-- Firebase SDK (builds clásicos «compat», v10) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
     <script>
       (function(){
         "use strict";
@@ -936,6 +951,7 @@
             { id: "r2", name: "Ejemplo: Luis Ek", zone: "Zona norte (Kalá, Siglo XXI)", demo: true }
           ],
           myRiderId: null,
+          myRiderFsId: null,
           walletBalance: 0,
           chargeMode: false,
           nextOrder: 104,
@@ -966,6 +982,205 @@
         function toast(msg){
           var t = $("toast"); t.textContent = msg; t.classList.add("show");
           setTimeout(function(){ t.classList.remove("show"); }, 3200);
+        }
+
+        /* ================= FIREBASE / FIRESTORE =================
+           Configuración web del proyecto entregas-expres-campeche.
+           Si Firestore no está disponible (sin red, SDK bloqueado o base
+           de datos aún no creada), la app sigue con su funcionamiento
+           local y muestra un aviso discreto de modo sin conexión. */
+        var firebaseConfig = {
+          apiKey: "AIzaSyBTEsSCNwvQy3BSkGlSNV7uphRqYqnKpxg",
+          authDomain: "entregas-expres-campeche.firebaseapp.com",
+          projectId: "entregas-expres-campeche",
+          storageBucket: "entregas-expres-campeche.firebasestorage.app",
+          messagingSenderId: "477506415495",
+          appId: "1:477506415495:web:b1fa2f137abec02dc18122"
+        };
+        var fbDb = null;
+        var fbReady = false;
+
+        function showConn(mode, text){
+          var b = $("conn-banner");
+          if (!b) return;
+          b.className = "conn-banner show " + mode;
+          b.textContent = text;
+        }
+        function connOnline(){ showConn("online", "● En línea: pedidos y repartidores sincronizados en tiempo real con Firebase."); }
+        function connOffline(){ showConn("offline", "● Modo sin conexión: Firebase no está disponible, así que la app funciona con sus datos locales de respaldo. Nada se pierde en esta pantalla; los pedidos nuevos se guardarán en la nube cuando vuelva la conexión."); }
+
+        /* Estado local <-> estado en Firestore */
+        var FS_FROM_LOCAL = { "Nuevo": "pendiente", "Aceptado": "aceptado", "Recogido": "recogido", "En camino": "en camino", "Entregado": "entregado", "Cancelado": "cancelado" };
+        var LOCAL_FROM_FS = { "pendiente": "Nuevo", "aceptado": "Aceptado", "recogido": "Recogido", "en camino": "En camino", "entregado": "Entregado", "cancelado": "Cancelado" };
+        function localStatusToFs(s){ return FS_FROM_LOCAL[s] || "pendiente"; }
+        function fsEstadoToLocal(e){
+          if (!e) return "Nuevo";
+          return LOCAL_FROM_FS[String(e).toLowerCase()] || "Nuevo";
+        }
+        /* El pedido guarda en Firestore el ID de documento del repartidor;
+           en pantalla se usa el ID local de la lista de repartidores. */
+        function fsRiderId(localId){
+          if (!localId) return null;
+          if (localId === state.myRiderId && state.myRiderFsId) return state.myRiderFsId;
+          for (var i = 0; i < state.riders.length; i++){ if (state.riders[i].id === localId && state.riders[i].fsId) return state.riders[i].fsId; }
+          return localId;
+        }
+        function localRiderId(fsId){
+          if (!fsId) return null;
+          if (state.myRiderFsId && fsId === state.myRiderFsId && state.myRiderId) return state.myRiderId;
+          for (var i = 0; i < state.riders.length; i++){ if (state.riders[i].fsId === fsId) return state.riders[i].id; }
+          return fsId;
+        }
+        function fsTimestamp(){
+          try {
+            if (window.firebase && firebase.firestore && firebase.firestore.FieldValue) return firebase.firestore.FieldValue.serverTimestamp();
+          } catch(err){}
+          return new Date();
+        }
+        function orderToFirestore(o){
+          return {
+            tipo: o.type,
+            nombre: o.customer,
+            whatsapp: o.phone || "",
+            recogida: o.pickup,
+            recogidaMapsUrl: mapsUrl(o.pickup, o.pickupMaps),
+            entrega: o.dropoff,
+            entregaMapsUrl: mapsUrl(o.dropoff, o.dropoffMaps),
+            zona: ZONE_NAMES[o.zone] || o.zone || "",
+            distanciaKm: o.km,
+            tarifa: o.fare,
+            pago: o.pay,
+            estado: localStatusToFs(o.status),
+            creadoEn: fsTimestamp(),
+            detalle: o.notes || "",
+            folio: o.id,
+            riderId: fsRiderId(o.riderId)
+          };
+        }
+        function firestoreDocToOrder(docId, d){
+          return {
+            id: d.folio || ("MC-" + docId.slice(0, 5).toUpperCase()),
+            fsId: docId,
+            type: d.tipo || "Mandado",
+            customer: d.nombre || "Cliente",
+            phone: d.whatsapp || "",
+            pickup: d.recogida || "",
+            dropoff: d.entrega || "",
+            pickupMaps: d.recogidaMapsUrl || "",
+            dropoffMaps: d.entregaMapsUrl || "",
+            zone: d.zona || "",
+            km: (typeof d.distanciaKm === "number" ? d.distanciaKm : parseInt(d.distanciaKm, 10) || 0),
+            notes: d.detalle || d.notas || "",
+            pay: d.pago || "",
+            fare: (typeof d.tarifa === "number" ? d.tarifa : parseFloat(d.tarifa) || 0),
+            status: fsEstadoToLocal(d.estado),
+            riderId: d.riderId || null
+          };
+        }
+        function saveOrderToFirestore(order){
+          if (!fbReady || !fbDb) return;
+          fbDb.collection("orders").add(orderToFirestore(order)).then(function(ref){
+            order.fsId = ref.id;
+          }).catch(function(){ connOffline(); });
+        }
+        function syncOrderStatusToFirestore(order){
+          if (!fbReady || !fbDb || !order.fsId) return;
+          fbDb.collection("orders").doc(order.fsId).update({
+            estado: localStatusToFs(order.status),
+            riderId: fsRiderId(order.riderId)
+          }).catch(function(){ connOffline(); });
+        }
+        function saveRiderToFirestore(rider){
+          if (!fbReady || !fbDb) return;
+          fbDb.collection("riders").add({
+            nombre: rider.name,
+            whatsapp: rider.phone || "",
+            moto: rider.moto || "Moto propia",
+            saldoMonedero: rider.id === state.myRiderId ? state.walletBalance : 0,
+            estado: "disponible",
+            zona: rider.zone || ""
+          }).then(function(ref){
+            rider.fsId = ref.id;
+            if (rider.id === state.myRiderId) state.myRiderFsId = ref.id;
+          }).catch(function(){ connOffline(); });
+        }
+        function syncMyWalletToFirestore(){
+          if (!fbReady || !fbDb || !state.myRiderFsId) return;
+          fbDb.collection("riders").doc(state.myRiderFsId).update({
+            saldoMonedero: state.walletBalance
+          }).catch(function(){ connOffline(); });
+        }
+        function initFirebase(){
+          try {
+            if (!window.firebase || !firebase.initializeApp || !firebase.firestore) { connOffline(); return; }
+            firebase.initializeApp(firebaseConfig);
+            fbDb = firebase.firestore();
+            fbReady = true;
+          } catch(err){
+            fbReady = false; fbDb = null; connOffline(); return;
+          }
+          /* Pedidos en tiempo real: este onSnapshot alimenta a la vez el
+             tablero del Repartidor (pedidos pendientes) y el panel del
+             Administrador (todos los pedidos), porque render() pinta
+             ambas vistas desde state.orders. */
+          fbDb.collection("orders").onSnapshot(function(snapshot){
+            var seen = {};
+            snapshot.forEach(function(doc){
+              var data = doc.data() || {};
+              seen[doc.id] = true;
+              var mapped = firestoreDocToOrder(doc.id, data);
+              mapped.riderId = localRiderId(mapped.riderId);
+              var existing = null;
+              for (var i = 0; i < state.orders.length; i++){
+                if (state.orders[i].fsId === doc.id || (data.folio && state.orders[i].id === data.folio)){ existing = state.orders[i]; break; }
+              }
+              if (existing){
+                var keepId = existing.id;
+                for (var k in mapped){ if (Object.prototype.hasOwnProperty.call(mapped, k)) existing[k] = mapped[k]; }
+                existing.id = keepId;
+              } else {
+                state.orders.push(mapped);
+                var m = /^MC-(\d+)$/.exec(mapped.id);
+                if (m){ var n = parseInt(m[1], 10) + 1; if (n >= state.nextOrder) state.nextOrder = n; }
+              }
+            });
+            state.orders = state.orders.filter(function(o){ return !o.fsId || seen[o.fsId]; });
+            connOnline();
+            render();
+          }, function(){ connOffline(); });
+          /* Repartidores registrados en tiempo real */
+          fbDb.collection("riders").onSnapshot(function(snapshot){
+            snapshot.forEach(function(doc){
+              var data = doc.data() || {};
+              var existing = null;
+              for (var i = 0; i < state.riders.length; i++){
+                if (state.riders[i].fsId === doc.id || (!state.riders[i].demo && data.whatsapp && state.riders[i].phone === data.whatsapp && state.riders[i].name === data.nombre)){ existing = state.riders[i]; break; }
+              }
+              if (existing){
+                existing.fsId = doc.id;
+                if (typeof data.saldoMonedero === "number") existing.saldoMonedero = data.saldoMonedero;
+                if (existing.id === state.myRiderId){
+                  state.myRiderFsId = doc.id;
+                  if (typeof data.saldoMonedero === "number" && data.saldoMonedero !== state.walletBalance){
+                    state.walletBalance = data.saldoMonedero;
+                  }
+                }
+              } else {
+                state.riders.push({
+                  id: "r" + (state.nextRider++),
+                  fsId: doc.id,
+                  name: data.nombre || "Repartidor",
+                  phone: data.whatsapp || "",
+                  moto: data.moto || "",
+                  zone: data.zona || "",
+                  saldoMonedero: (typeof data.saldoMonedero === "number" ? data.saldoMonedero : 0),
+                  demo: false
+                });
+              }
+            });
+            state.orders.forEach(function(o){ if (o.riderId) o.riderId = localRiderId(o.riderId); });
+            render();
+          }, function(){ /* si riders falla, la lista local sigue visible */ });
         }
 
         /* ---------- Tabs ---------- */
@@ -1168,22 +1383,22 @@
             if (!state.myRiderId){ toast("Primero regístrate como repartidor para aceptar encargos."); showPanel("repartidor"); return; }
             if (state.chargeMode && state.walletBalance <= 0){ toast("Tu monedero está en $0: deposita $100 para poder aceptar encargos."); return; }
             var o1 = state.orders.find(function(x){ return x.id === acc.getAttribute("data-accept"); });
-            if (o1 && o1.status === "Nuevo"){ o1.status = "Aceptado"; o1.riderId = state.myRiderId; toast("Encargo " + o1.id + " aceptado. ¡A recoger!"); render(); }
+            if (o1 && o1.status === "Nuevo"){ o1.status = "Aceptado"; o1.riderId = state.myRiderId; syncOrderStatusToFirestore(o1); toast("Encargo " + o1.id + " aceptado. ¡A recoger!"); render(); }
           }
           if (adv){
             var o2 = state.orders.find(function(x){ return x.id === adv.getAttribute("data-advance"); });
             if (o2){
               var next = STATUS_FLOW[STATUS_FLOW.indexOf(o2.status) + 1];
-              if (next){ o2.status = next; if (next === "Entregado"){ var comm = commissionOf(o2.fare); if (state.chargeMode){ state.walletBalance = Math.round((state.walletBalance - comm) * 100) / 100; } state.myEarnings += riderPay(o2.fare); state.myDeliveries += 1; toast(state.chargeMode ? "Entrega confirmada: el cliente te pagó " + money(o2.fare) + " y se descontaron " + money(comm) + " de tu monedero (saldo: " + money(state.walletBalance) + ")." : "Entrega confirmada: ganaste " + money(riderPay(o2.fare)) + "."); } else { toast("Pedido " + o2.id + ": " + next + "."); } render(); }
+              if (next){ o2.status = next; syncOrderStatusToFirestore(o2); if (next === "Entregado"){ var comm = commissionOf(o2.fare); if (state.chargeMode){ state.walletBalance = Math.round((state.walletBalance - comm) * 100) / 100; syncMyWalletToFirestore(); } state.myEarnings += riderPay(o2.fare); state.myDeliveries += 1; toast(state.chargeMode ? "Entrega confirmada: el cliente te pagó " + money(o2.fare) + " y se descontaron " + money(comm) + " de tu monedero (saldo: " + money(state.walletBalance) + ")." : "Entrega confirmada: ganaste " + money(riderPay(o2.fare)) + "."); } else { toast("Pedido " + o2.id + ": " + next + "."); } render(); }
             }
           }
           if (rel){
             var o3 = state.orders.find(function(x){ return x.id === rel.getAttribute("data-release"); });
-            if (o3){ o3.status = "Nuevo"; o3.riderId = null; toast("Encargo " + o3.id + " liberado al tablero."); render(); }
+            if (o3){ o3.status = "Nuevo"; o3.riderId = null; syncOrderStatusToFirestore(o3); toast("Encargo " + o3.id + " liberado al tablero."); render(); }
           }
           if (can){
             var o4 = state.orders.find(function(x){ return x.id === can.getAttribute("data-cancel"); });
-            if (o4){ o4.status = "Cancelado"; toast("Pedido " + o4.id + " cancelado."); render(); }
+            if (o4){ o4.status = "Cancelado"; syncOrderStatusToFirestore(o4); toast("Pedido " + o4.id + " cancelado."); render(); }
           }
         });
         document.addEventListener("change", function(e){
@@ -1194,6 +1409,7 @@
           var rid = sel.value;
           if (rid){ o.riderId = rid; if (o.status === "Nuevo") o.status = "Aceptado"; toast("Pedido " + o.id + " asignado."); }
           else { o.riderId = null; if (o.status === "Aceptado"){ o.status = "Nuevo"; } }
+          syncOrderStatusToFirestore(o);
           render();
         });
 
@@ -1225,9 +1441,11 @@
             pay: $("f-pay").value,
             fare: fare(km),
             status: "Nuevo",
-            riderId: null
+            riderId: null,
+            fsId: null
           };
           state.orders.push(order);
+          saveOrderToFirestore(order);
           msg.className = "msg ok";
           msg.textContent = "¡Pedido " + order.id + " creado! Ya está en el tablero de repartidores. Síguelo aquí abajo en “Mis pedidos”.";
           toast("Pedido " + order.id + " creado — buscando repartidor.");
@@ -1242,9 +1460,10 @@
           var msg = $("rider-msg");
           if (!name){ msg.className = "msg err"; msg.textContent = "Escribe tu nombre para registrarte."; return; }
           if (!$("r-own").checked){ msg.className = "msg err"; msg.textContent = "Para repartir necesitas moto propia y licencia vigente. Marca la casilla cuando las tengas."; return; }
-          var rider = { id: "r" + (state.nextRider++), name: name, zone: $("r-zone").value, demo: false };
+          var rider = { id: "r" + (state.nextRider++), name: name, phone: $("r-phone").value.trim(), moto: $("r-moto").value.trim() || "Moto propia", zone: $("r-zone").value, demo: false, fsId: null, saldoMonedero: 0 };
           state.riders.push(rider);
           state.myRiderId = rider.id;
+          saveRiderToFirestore(rider);
           msg.className = "msg ok";
           msg.textContent = "¡Bienvenido, " + name.split(" ")[0] + "! Ya puedes aceptar encargos del tablero. En lanzamiento tu comisión es $0.";
           toast("Registro completo. Ya puedes aceptar encargos.");
@@ -1255,6 +1474,7 @@
         $("btn-deposit").addEventListener("click", function(){
           if (!state.myRiderId){ toast("Primero regístrate como repartidor para tener tu monedero."); return; }
           state.walletBalance = Math.round((state.walletBalance + 100) * 100) / 100;
+          syncMyWalletToFirestore();
           toast("Depósito de $100 acreditado a tu monedero. Saldo: " + money(state.walletBalance) + ".");
           render();
         });
@@ -1284,6 +1504,7 @@
           window.open("https://wa.me/?text=" + encodeURIComponent(INVITE), "_blank");
         });
 
+        initFirebase();
         render();
       })();
     </script>
