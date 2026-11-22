@@ -1573,7 +1573,7 @@
             }
             input.classList.remove("field-invalid");
             mapsInput.value = coordsUrl(pt.lat, pt.lng);
-            $(prefix + "-selected-label").textContent = pt.name + " (" + pt.lat.toFixed(5) + ", " + pt.lng.toFixed(5) + ")";
+            $(prefix + "-selected-label").textContent = pt.name + " (" + pt.lat.toFixed(7) + ", " + pt.lng.toFixed(7) + ")";
             $(prefix + "-selected-link").href = coordsUrl(pt.lat, pt.lng);
             selectedBox.classList.add("show");
             markRows();
@@ -1666,8 +1666,22 @@
              duplicados, se filtra a Campeche y se muestran máximo 5
              opciones, para no confundir. */
           var KNOWN_PLACES = [
-            { name: "Farmacia Guadalajara", detail: "Av. José López Portillo, Samulá", lat: 19.81789, lng: -90.53780, kind: "Farmacia", keys: ["guadalajara"] },
-            { name: "Farmacia Guadalajara", detail: "Calle 61, Zona Centro", lat: 19.84600, lng: -90.53951, kind: "Farmacia", keys: ["guadalajara"] }
+            { name: "Farmacia Guadalajara", detail: "Av López Portillo 25, Lomas de las Flores II, 24060", lat: 19.8144397, lng: -90.5220723, kind: "Farmacia", keys: ["guadalajara"] },
+            { name: "Farmacia Guadalajara", detail: "Av Patricio Trueba de Regil 312, 24090", lat: 19.8240354, lng: -90.5335256, kind: "Farmacia", keys: ["guadalajara"] },
+            { name: "Farmacia Guadalajara", detail: "Av Gobernadores 457, Barrio de Sta Ana, 24050", lat: 19.8430025, lng: -90.5259758, kind: "Farmacia", keys: ["guadalajara"] },
+            { name: "Farmacia Guadalajara", detail: "C. Baja Velocidad, Ramón Espínola Blanco, 24085", lat: 19.8406867, lng: -90.4887337, kind: "Farmacia", keys: ["guadalajara"] },
+            { name: "Farmacia Guadalajara", detail: "Av Aviación 90, Cuatro Caminos, 24070", lat: 19.835718, lng: -90.5099557, kind: "Farmacia", keys: ["guadalajara"] },
+            { name: "Farmacia Guadalajara", detail: "Av. 16 de Septiembre 134, Zona Centro, 24000", lat: 19.8461669, lng: -90.5394573, kind: "Farmacia", keys: ["guadalajara"] },
+            { name: "Farmacia Guadalajara", detail: "C. Adriano Chino Wong, Camino Real, 24027", lat: 19.8635942, lng: -90.5122468, kind: "Farmacia", keys: ["guadalajara"] },
+            { name: "Farmacia Guadalajara", detail: "C. 15 74-185, Bellavista, San Joaquín, 24020", lat: 19.8534939, lng: -90.5063957, kind: "Farmacia", keys: ["guadalajara"] },
+            { name: "Farmacia Guadalajara", detail: "Av López Portillo 173, Ignacio Zaragoza, Tepeyac, 24098", lat: 19.8178545, lng: -90.5377782, kind: "Farmacia", keys: ["guadalajara"] },
+            { name: "Farmacia Guadalajara", detail: "Av. Álvaro Obregón 256, Barrio de Sta Lucía, 24020", lat: 19.8443395, lng: -90.5017264, kind: "Farmacia", keys: ["guadalajara"] },
+            { name: "Farmacia Guadalajara", detail: "Av. Miguel Alemán 285, Barrio de la Ermita, 24020", lat: 19.854988, lng: -90.5218503, kind: "Farmacia", keys: ["guadalajara"] },
+            { name: "Farmacia Guadalajara", detail: "Miramar, 24030", lat: 19.8310964, lng: -90.5596306, kind: "Farmacia", keys: ["guadalajara"] },
+            { name: "Farmacia Guadalajara", detail: "Av. Álvaro Obregón 4, Esperanza, 24080", lat: 19.8441753, lng: -90.501675, kind: "Farmacia", keys: ["guadalajara"] },
+            { name: "Farmacia Guadalajara", detail: "Francisco Field 6, Área Ah, 24014", lat: 19.8534059, lng: -90.5296387, kind: "Farmacia", keys: ["guadalajara"] },
+            { name: "Farmacia Guadalajara", detail: "Av. Lic. Benito Juárez 1, Villa Naranjos, Presidentes de México, 24088", lat: 19.8567362, lng: -90.4919419, kind: "Farmacia", keys: ["guadalajara"] },
+            { name: "Farmacia Guadalajara", detail: "Av López Mateos 222, Burócratas Pensiones, 24035", lat: 19.834412, lng: -90.5458291, kind: "Farmacia", keys: ["guadalajara"] }
           ];
           function normText(s){
             var t = (s || "").toLowerCase();
@@ -1738,8 +1752,9 @@
             }).map(function(kp){
               return { title: kp.name + " — " + kp.detail, detail: kp.kind, lat: kp.lat, lng: kp.lng };
             });
+            var localCount = merged.length;
             var seen = {};
-            merged.forEach(function(it){ seen[it.lat.toFixed(3) + "," + it.lng.toFixed(3)] = true; });
+            merged.forEach(function(it){ seen[it.lat.toFixed(4) + "," + it.lng.toFixed(4)] = true; });
             var jobs = variants.map(function(v){ return nominatimQuery(v, 8); });
             jobs.push(photonQuery(q));
             Promise.all(jobs).then(function(groups){
@@ -1747,13 +1762,19 @@
                 (list || []).forEach(function(it){
                   if (!it || !isFinite(it.lat) || !isFinite(it.lng) || !it.title) return;
                   if (!inCampeche(it.lat, it.lng)) return;
-                  var key = it.lat.toFixed(3) + "," + it.lng.toFixed(3);
+                  var key = it.lat.toFixed(4) + "," + it.lng.toFixed(4);
                   if (seen[key]) return;
                   seen[key] = true;
                   merged.push(it);
                 });
               });
-              var results = merged.slice(0, 5);
+              /* Si la búsqueda coincide con la lista local verificada
+                 (ej. «farmacia guadalajara»), se muestran TODAS las
+                 sucursales de esa lista, sin el tope de 5 y sin mezclar
+                 duplicados del buscador externo: son las verificadas
+                 en Google Maps el 21 nov 2026, con coordenadas exactas.
+                 Para cualquier otra búsqueda se mantiene el máximo de 5. */
+              var results = localCount ? merged.slice(0, localCount) : merged.slice(0, 5);
               if (!results.length){
                 status.textContent = "No se encontró «" + q + "» tal cual. Revisa cómo se escribe, agrega la calle o la colonia, o toca directamente el mapa en la zona donde " + verb + " y coloca ahí el pin: ese punto exacto es el que vale.";
                 setAdjust("approx", "📍 No se encontró: acércate con el mapa a la zona y toca justo donde " + verb + " para colocar el pin.");
@@ -1765,12 +1786,12 @@
               label.textContent = results.length === 1 ? "Se marcó este resultado — ajusta el pin si hace falta:" : "Encontré " + results.length + " opciones en Campeche — toca la correcta y ajusta el pin:";
               resultsBox.appendChild(label);
               results.forEach(function(it, i){
-                var lat = Math.round(it.lat * 100000) / 100000, lng = Math.round(it.lng * 100000) / 100000;
+                var lat = Math.round(it.lat * 10000000) / 10000000, lng = Math.round(it.lng * 10000000) / 10000000;
                 var b = document.createElement("button");
                 b.type = "button";
                 b.className = "place-row";
                 b.setAttribute("aria-pressed", i === 0 ? "true" : "false");
-                b.innerHTML = '<span class="pin-num">' + (i + 1) + '</span><span><b>' + esc(it.title) + '</b><span class="detail">' + esc(it.detail) + ' · ' + lat.toFixed(5) + ', ' + lng.toFixed(5) + '</span></span>';
+                b.innerHTML = '<span class="pin-num">' + (i + 1) + '</span><span><b>' + esc(it.title) + '</b><span class="detail">' + esc(it.detail) + ' · ' + lat.toFixed(7) + ', ' + lng.toFixed(7) + '</span></span>';
                 b.addEventListener("click", function(){
                   Array.prototype.forEach.call(resultsBox.querySelectorAll(".place-row"), function(rw){ rw.setAttribute("aria-pressed", "false"); });
                   b.setAttribute("aria-pressed", "true");
@@ -1780,7 +1801,7 @@
                 resultsBox.appendChild(b);
               });
               var f0 = results[0];
-              var fpt = { name: f0.title, detail: "", lat: Math.round(f0.lat * 100000) / 100000, lng: Math.round(f0.lng * 100000) / 100000, zone: null };
+              var fpt = { name: f0.title, detail: "", lat: Math.round(f0.lat * 10000000) / 10000000, lng: Math.round(f0.lng * 10000000) / 10000000, zone: null };
               setPoint(fpt, { approx: true, keepInput: true, zoom: 17 });
               if (mapObj) setTimeout(function(){ mapObj.invalidateSize(); mapObj.setView([fpt.lat, fpt.lng], 17); }, 60);
             });
