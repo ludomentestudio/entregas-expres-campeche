@@ -157,6 +157,7 @@
         background:var(--surface); outline:none;
       }
       .field input:focus,.field select:focus,.field textarea:focus{ border-color:var(--teal); }
+      .field input.field-invalid,.field select.field-invalid,.field textarea.field-invalid{ border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft); }
       .field textarea{ resize:vertical; min-height:64px; }
       .field .hint{ font-size:.8rem; color:var(--muted); margin-top:4px; }
       .type-chips{ display:flex; flex-wrap:wrap; gap:8px; }
@@ -427,26 +428,26 @@
               </div>
               <div class="field">
                 <label for="f-name">Tu nombre</label>
-                <input id="f-name" type="text" placeholder="Ej. María González" autocomplete="name" />
+                <input id="f-name" name="nombre" type="text" placeholder="Ej. María González" autocomplete="name" />
               </div>
               <div class="field">
                 <label for="f-phone">Tu WhatsApp (para avisarte de la entrega)</label>
-                <input id="f-phone" type="tel" placeholder="981 000 0000" autocomplete="tel" />
+                <input id="f-phone" name="whatsapp" type="tel" placeholder="981 000 0000" autocomplete="tel" />
               </div>
               <div class="field">
                 <label for="f-pickup">¿Dónde se recoge? — aquí recoge el repartidor</label>
-                <input id="f-pickup" type="text" placeholder="Ej. Farmacia del Ahorro, Centro" />
+                <input id="f-pickup" name="recogida" type="text" placeholder="Ej. Farmacia del Ahorro, Centro" />
                 <a class="maps-open" id="pickup-maps-open" href="https://www.google.com/maps/search/?api=1&query=Campeche" target="_blank" rel="noopener">📍 Abrir Google Maps para ubicar el punto exacto</a>
                 <label for="f-pickup-maps" style="margin-top:10px">Enlace de Google Maps del punto de recogida (opcional, recomendado)</label>
-                <input id="f-pickup-maps" type="url" placeholder="Pega aquí el enlace de Maps: Compartir → Copiar enlace" />
+                <input id="f-pickup-maps" name="recogidaMaps" type="url" placeholder="Pega aquí el enlace de Maps: Compartir → Copiar enlace" />
                 <div class="hint">Con el enlace, el repartidor llega al punto exacto que marcaste en el mapa, sin confusiones de calle o número.</div>
               </div>
               <div class="field">
                 <label for="f-dropoff">¿Dónde se entrega? — aquí entrega el repartidor</label>
-                <input id="f-dropoff" type="text" placeholder="Ej. Calle 12 #34, Barrio de San Román" />
+                <input id="f-dropoff" name="entrega" type="text" placeholder="Ej. Calle 12 #34, Barrio de San Román" />
                 <a class="maps-open" id="dropoff-maps-open" href="https://www.google.com/maps/search/?api=1&query=Campeche" target="_blank" rel="noopener">📍 Abrir Google Maps para ubicar el punto exacto</a>
                 <label for="f-dropoff-maps" style="margin-top:10px">Enlace de Google Maps del punto de entrega (opcional, recomendado)</label>
-                <input id="f-dropoff-maps" type="url" placeholder="Pega aquí el enlace de Maps: Compartir → Copiar enlace" />
+                <input id="f-dropoff-maps" name="entregaMaps" type="url" placeholder="Pega aquí el enlace de Maps: Compartir → Copiar enlace" />
                 <div class="hint">Si pides para otra persona, marca en Maps su ubicación y pega aquí ese enlace.</div>
               </div>
               <div class="field">
@@ -1414,15 +1415,59 @@
         });
 
         /* ---------- Enviar pedido ---------- */
+        /* Al escribir en un campo con error, se le quita la marca roja. */
+        ["f-name","f-pickup","f-dropoff","f-pickup-maps","f-dropoff-maps"].forEach(function(id){
+          var el = $(id);
+          if (el) el.addEventListener("input", function(){ el.classList.remove("field-invalid"); });
+        });
         $("order-form").addEventListener("submit", function(e){
           e.preventDefault();
-          var name = $("f-name").value.trim();
-          var pickup = $("f-pickup").value.trim();
-          var dropoff = $("f-dropoff").value.trim();
+          var form = e.target;
+          /* El valor se lee directo del formulario (por id y por nombre del
+             campo), así lo escrito en «Tu nombre» se reconoce aunque el
+             navegador lo haya autocompletado sin disparar eventos. */
+          function fieldValue(id, fieldName){
+            var el = $(id);
+            if (el && typeof el.value === "string" && el.value.trim()) return el.value.trim();
+            if (form && form.elements && form.elements[fieldName] && typeof form.elements[fieldName].value === "string") return form.elements[fieldName].value.trim();
+            return el && typeof el.value === "string" ? el.value.trim() : "";
+          }
+          var name = fieldValue("f-name", "nombre");
+          var pickup = fieldValue("f-pickup", "recogida");
+          var pickupMaps = fieldValue("f-pickup-maps", "recogidaMaps");
+          var dropoff = fieldValue("f-dropoff", "entrega");
+          var dropoffMaps = fieldValue("f-dropoff-maps", "entregaMaps");
+          /* Si el cliente pegó el enlace de Maps de un punto, ese enlace
+             también cuenta como ese punto, aunque el texto quede vacío. */
+          if (!pickup && pickupMaps) pickup = pickupMaps;
+          if (!dropoff && dropoffMaps) dropoff = dropoffMaps;
           var msg = $("form-msg");
-          if (!name || !pickup || !dropoff){
+          /* Validación campo por campo: el mensaje dice EXACTAMENTE qué
+             falta (antes un solo mensaje juntaba nombre, recogida y
+             entrega, y parecía que siempre faltaba el nombre). */
+          var missing = [];
+          if (!name) missing.push({ id: "f-name", label: "tu nombre" });
+          if (!pickup) missing.push({ id: "f-pickup", label: "dónde se recoge" });
+          if (!dropoff) missing.push({ id: "f-dropoff", label: "dónde se entrega" });
+          ["f-name","f-pickup","f-dropoff"].forEach(function(id){
+            var el = $(id);
+            if (el) el.classList.remove("field-invalid");
+          });
+          if (missing.length){
+            missing.forEach(function(m){
+              var el = $(m.id);
+              if (el) el.classList.add("field-invalid");
+            });
+            var labels = missing.map(function(m){ return m.label; });
             msg.className = "msg err";
-            msg.textContent = "Faltan datos: escribe tu nombre, dónde se recoge y dónde se entrega.";
+            msg.textContent = missing.length === 1
+              ? "Falta un dato: escribe " + labels[0] + "."
+              : "Faltan datos: escribe " + labels.slice(0, -1).join(", ") + " y " + labels[labels.length - 1] + ".";
+            var first = $(missing[0].id);
+            if (first){
+              first.scrollIntoView({ behavior: "smooth", block: "center" });
+              try { first.focus({ preventScroll: true }); } catch(err){ first.focus(); }
+            }
             return;
           }
           var km = parseInt($("f-km").value, 10);
@@ -1433,8 +1478,8 @@
             phone: $("f-phone").value.trim(),
             pickup: pickup,
             dropoff: dropoff,
-            pickupMaps: $("f-pickup-maps").value.trim(),
-            dropoffMaps: $("f-dropoff-maps").value.trim(),
+            pickupMaps: pickupMaps,
+            dropoffMaps: dropoffMaps,
             zone: $("f-zone").value,
             km: km,
             notes: $("f-notes").value.trim(),
